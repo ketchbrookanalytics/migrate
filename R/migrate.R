@@ -12,7 +12,7 @@
 #' @export
 #'
 #' @examples
-migrate <- function(data, date, rating, metric, id = NULL, include.new = TRUE, exclude.old = FALSE) {
+migrate <- function(data, date, rating, metric, percent = FALSE, id = NULL, include.new = TRUE, exclude.old = FALSE) {
 
   # Coerce input dataframe to a tibble
   data <- data %>% tibble::as_tibble()
@@ -89,13 +89,13 @@ migrate <- function(data, date, rating, metric, id = NULL, include.new = TRUE, e
   }
 
   # Capture the max date value
-  max_date <- data %>%
+  min_date <- data %>%
     dplyr::pull(!! date_quo) %>%
     unique() %>%
-    max()
+    min()
 
   # Capture the min date value
-  min_date <- data %>%
+  max_date <- data %>%
     dplyr::pull(!! date_quo) %>%
     unique() %>%
     max()
@@ -123,16 +123,56 @@ migrate <- function(data, date, rating, metric, id = NULL, include.new = TRUE, e
 
   }
 
-  # Create the output dataframe with the default arguments
-  data %>%
-    dplyr::group_by(
-      !! date_quo,
-      !! rating_quo,
-      .drop = FALSE
-    ) %>%
-    dplyr::summarise(
-      metric_name := sum(!! metric_quo),
-      .groups = "drop"
+  data <- data %>%
+    tidyr::pivot_wider(
+      names_from = !! date_quo,
+      values_from = c((!! rating_quo), (!! metric_quo))
     )
+
+  col_names <- colnames(data) %>%
+    stringr::str_replace(
+      pattern = as.character(min_date),
+      replacement = "start"
+    ) %>%
+    stringr::str_replace(
+      pattern = as.character(max_date),
+      replacement = "end"
+    )
+
+  colnames(data) <- col_names
+
+  rating_start_sym <- paste0(rating_name, "_start") %>% dplyr::sym()
+  rating_end_sym <- paste0(rating_name, "_end") %>% dplyr::sym()
+
+  metric_start_sym <- paste0(metric_name, "_start") %>% dplyr::sym()
+  metric_end_sym <- paste0(metric_name, "_end") %>% dplyr::sym()
+
+  data <- data %>%
+    dplyr::group_by(
+      !! rating_start_sym,
+      !! rating_end_sym,
+      .drop = FALSE
+    )
+
+  if (percent == TRUE) {
+
+    data %>%
+      dplyr::summarise(
+        !! metric_name := (sum(!! metric_end_sym) - sum(!! metric_start_sym)) / sum(!! metric_start_sym),
+        .groups = "drop"
+      ) %>%
+      tidyr::drop_na()
+
+  } else {
+
+    data %>%
+      dplyr::summarise(
+        !! metric_name := sum(!! metric_end_sym) - sum(!! metric_start_sym),
+        .groups = "drop"
+      ) %>%
+      tidyr::drop_na()
+
+  }
+
 
 }
