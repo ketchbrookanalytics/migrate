@@ -161,6 +161,7 @@ migrate <- function(data, date, rating, metric, percent = FALSE, id = NULL, incl
         !! metric_name := (sum(!! metric_end_sym) - sum(!! metric_start_sym)) / sum(!! metric_start_sym),
         .groups = "drop"
       ) %>%
+      dplyr::mutate(!! metric_name := ifelse(is.nan(!! dplyr::sym(metric_name)), Inf, !! dplyr::sym(metric_name))) %>%
       tidyr::drop_na()
 
   } else {

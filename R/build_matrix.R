@@ -39,6 +39,8 @@ build_matrix <- function(data, method = "console") {
   vals <- data %>%
     dplyr::pull(!! metric_sym)
 
+  vals <- ifelse(is.infinite(vals), NA, vals)
+
   matrix(
     vals,
     nrow = length(row_names),
