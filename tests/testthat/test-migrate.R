@@ -1,7 +1,5 @@
 test_that("migrate() returns a dataframe", {
 
-  load(here::here("data/mock_credit.rda"))
-
   raw <- migrate(
     data = mock_credit,
     date = date,
