@@ -6,7 +6,11 @@ Authors@R:
     c(person(given = "Michael", 
              family = "Thomas", 
              role = c("aut", "cre"), 
-             email = "mthomas@ketchbrookanalytics.com"))
+             email = "mthomas@ketchbrookanalytics.com"), 
+      person(given = "Brad", 
+             family = "Lindblad", 
+             role = "ctb", 
+             email = "bradley.lindblad@gmail.com"))
 Maintainer: mthomas@ketchbrookanalytics.com
 Description: Tools to help convert credit risk data at two time points 
     into traditional credit state migration (aka, "transition") matrices.
