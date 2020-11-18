@@ -29,7 +29,7 @@ devtools::install_github("mthomas-ketchbrook/migrate")
 
 ## Example
 
-First load the package & the mock dataset (as a data frame) using
+First, load the package & the mock dataset (as a data frame) using
 `library()`
 
 ``` r
