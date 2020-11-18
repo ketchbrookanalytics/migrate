@@ -1,0 +1,38 @@
+---
+title: "migrate"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{migrate}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Using `migrate`
+
+This package is intended to serve as a set of tools to help convert credit risk data at two time points into traditional credit state migration (aka, "transition") matrices. At a higher level, `migrate` is intended to help an analyst understand how risk moved in their credit portfolio over a time interval.
+
+## Background
+
+One of the more difficult aspects of making a credit state migration matrix in R (or Python, for that matter) is the fact that the output doesn't satisfy the structure of a traditional data frame object. Rather, the output needs to be a *matrix*, which is a data structure that R does support. In the past, there has been difficulty converting a matrix to something more visual-friendly. More recently, however, tools like the [kableExtra]() and [gt]() packages allow us to present visually appealing output that extends the structure of a data frame. Using the matrix-style output of `migrate`'s functions with a visual formatting package such as the two mentioned above will hopefully help analysts streamline the presentation of their credit portfolio's state migration matrices to an audience.
+
+## Getting Started
+
+If you haven't done so already, first install `migrate` with the instructions in the [README section](https://github.com/mthomas-ketchbrook/migrate#Installation)
+```{r install}
+# Install the lastest version on CRAN
+install.packages("")
+
+
+```
+
+
+```{r setup}
+library(migrate)
+```
