@@ -13,3 +13,5 @@ test_that("migrate() returns a dataframe", {
   )
 
 })
+
+test_that
