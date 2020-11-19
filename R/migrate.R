@@ -65,10 +65,7 @@ migrate <- function(data, date, rating, metric, percent = FALSE, id = NULL, incl
 
     if (missing(id)) {
 
-      cat(
-        emo::ji("x"),
-        "Error: If `include.new` = FALSE or `exclude.old` = TRUE, then `id` must be specified."
-      ) %>% stop()
+      stop("Error: If `include.new` = FALSE or `exclude.old` = TRUE, then `id` must be specified.")
 
     }
 
@@ -101,7 +98,6 @@ migrate <- function(data, date, rating, metric, percent = FALSE, id = NULL, incl
     # Print message to console letting user know that variable is being
     # converted to type `factor`
     cat(
-      emo::ji("warning"),
       "Converting ",
       crayon::blue(rating_name),
       " to type `factor`."
@@ -122,7 +118,6 @@ migrate <- function(data, date, rating, metric, percent = FALSE, id = NULL, incl
   if (num_dates != 2) {
 
     cat(
-      emo::ji("x"),
       "Error: Data must have exactly 2 unique values for ",
       crayon::blue(date_name),
       "; instead ",
