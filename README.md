@@ -5,6 +5,8 @@
 
 <!-- badges: start -->
 
+[![Travis build
+status](https://travis-ci.com/mthomas-ketchbrook/migrate.svg?branch=master)](https://travis-ci.com/mthomas-ketchbrook/migrate)
 <!-- badges: end -->
 
 The goal of migrate is to provide credit analysts with an easy set of
