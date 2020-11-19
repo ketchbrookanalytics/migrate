@@ -11,7 +11,6 @@ Authors@R:
              family = "Lindblad", 
              role = "ctb", 
              email = "bradley.lindblad@gmail.com"))
-Maintainer: mthomas@ketchbrookanalytics.com
 Description: Tools to help convert credit risk data at two time points 
     into traditional credit state migration (aka, "transition") matrices.
     At a higher level, 'migrate' is intended to help an analyst understand 
@@ -31,7 +30,12 @@ Imports:
     dplyr (>= 1.0.2),
     tidyr (>= 1.1.0),
     emo (>= 0.0.0.9000),
-    crayon (>= 1.3.4)
+    crayon (>= 1.3.4), 
+    stringr (>= 1.4.0), 
+    tibble (>= 3.0.1), 
+    rlang, 
+    utils, 
+    magrittr
 VignetteBuilder: 
     knitr
 Language: en-US

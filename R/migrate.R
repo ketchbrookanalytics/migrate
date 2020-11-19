@@ -29,6 +29,8 @@
 #' combinations of starting & ending credit risk ratings and the migrated difference in
 #' the continuous metric.
 #'
+#' @importFrom rlang :=
+#'
 #' @export
 #'
 #' @examples
