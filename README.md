@@ -7,6 +7,7 @@
 
 [![Travis build
 status](https://travis-ci.com/mthomas-ketchbrook/migrate.svg?branch=master)](https://travis-ci.com/mthomas-ketchbrook/migrate)
+[![lifecycle](https://img.shields.io/badge/lifecycle-maturing-orange.svg)](https://www.tidyverse.org/lifecycle/#maturing)
 <!-- badges: end -->
 
 The goal of migrate is to provide credit analysts with an easy set of
