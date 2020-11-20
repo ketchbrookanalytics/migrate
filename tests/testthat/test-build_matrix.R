@@ -8,6 +8,9 @@ test_that("build_matrix() returns an object of classes `matrix` & `array`", {
   ) %>%
     build_matrix()
 
-  testthat::expect_equal(class(raw), c("matrix", "array"))
+  testthat::expect_equal(
+    class(raw),
+    c("matrix", "array")
+  )
 
 })

@@ -98,9 +98,12 @@ migrate <- function(data, date, rating, metric, percent = FALSE, id = NULL, incl
     # Print message to console letting user know that variable is being
     # converted to type `factor`
     cat(
-      "Converting ",
+      "Converting",
       crayon::blue(rating_name),
-      " to type `factor`."
+      "to type `factor`.\nTo ensure that your output is ordered correctly, make the",
+      crayon::blue(rating_name),
+      "column variable in your data frame an ordered",
+      "factor before passing it to `migrate()`."
     ) %>% message()
 
     data <- data %>%
