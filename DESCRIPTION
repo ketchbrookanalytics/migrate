@@ -15,12 +15,9 @@ Description: Tools to help convert credit risk data at two time points
     into traditional credit state migration (aka, "transition") matrices.
     At a higher level, 'migrate' is intended to help an analyst understand 
     how risk moved in their credit portfolio over a time interval. 
-    References to this methodology include:
-    1. Basel Committe on Banking Supervision. (2001). The New Basel Capital 
-    Accord. 
-    2. Lando, D. (2004). Credit Risk Modeling: Theory and Applications.
-    3. Wang, Y., et al. (2017). Credit Transition Model 2017 Update: 
-    Methodology and Performance Review.
+    References to this methodology include: 
+    1. Schuermann, T. (2008) <doi:10.1002/9780470061596.risk0409>.
+    2. Perederiy, V. (2017) <arXiv:1708.00062>.
 License: MIT + file LICENSE
 URL: https://github.com/mthomas-ketchbrook/migrate
 BugReports: https://github.com/mthomas-ketchbrook/migrate/issues
