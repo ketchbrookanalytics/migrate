@@ -3,5 +3,4 @@
 ^LICENSE\.md$
 ^README\.Rmd$
 ^\.travis\.yml$
-^doc$
 ^Meta$
