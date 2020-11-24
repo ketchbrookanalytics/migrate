@@ -113,7 +113,6 @@ Or, to do it all in one shot, use the `%>%`
 ``` r
 mock_credit %>% 
   migrate(
-    data = mock_credit, 
     date = date, 
     rating = risk_rating, 
     metric = principal_balance
