@@ -14,6 +14,8 @@ The goal of migrate is to provide credit analysts with an easy set of
 tools for building *state migration matrices* (also known as *“state
 transition matrices”*).
 
+<br> ![](man/figures/gt_tbl.png) <br>
+
 ## Installation
 
 You can install the released version of migrate from
