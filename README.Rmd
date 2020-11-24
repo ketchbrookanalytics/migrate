@@ -5,6 +5,8 @@ output: github_document
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 ```{r, include = FALSE}
+options(width = 999)
+
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -40,26 +42,27 @@ devtools::install_github("mthomas-ketchbrook/migrate")
 
 First, load the package & the mock dataset (as a data frame) using `library()`
 
-```{r, eval = FALSE}
+```{r load}
 library(migrate)
 data("mock_credit")
 ```
 
 We can get a look at the data using `dplyr::glimpse()`
 
-```{r glimpse, eval = FALSE}
+```{r glimpse, warning = FALSE, message = FALSE}
+library(dplyr)
 glimpse(mock_credit)
 ```
 
 Note that an important feature of the dataset is that there are exactly two (2) unique values in the `date` column variable
 
-```{r dates, eval = FALSE}
+```{r dates}
 unique(mock_credit$date)
 ```
 
 To summarize the migration within the data, use the `migrate()` function
 
-```{r migrate, eval = FALSE}
+```{r migrate}
 migrated_df <- migrate(
   data = mock_credit, 
   date = date, 
@@ -71,7 +74,7 @@ head(migrated_df)
 ```
 
 To create the state migration matrix, use the `build_matrix()` function
-```{r matrix, eval = FALSE} 
+```{r matrix}
 build_matrix(migrated_df)
 ```
 

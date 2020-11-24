@@ -17,8 +17,11 @@ migrate(
 }
 \arguments{
 \item{data}{A data frame or data frame extension (e.g., a tibble or data.table)
-containing a minimum of three (3) column variables representing a date, a credit
-risk rating, and a (continuous) metric.}
+containing a minimum of four (4) column variables representing a date, a credit
+risk rating, a (continuous) metric, and an ID identifying the credit facility (we
+would expect to see most unique values in this column variable appear twice in the
+dataset; once at the first date and again at the second date, unless the credit
+only existed at one of those two dates).}
 
 \item{date}{A symbol or string, representing the column variable of the `data` data
 frame argument that contains the two unique date values.}
