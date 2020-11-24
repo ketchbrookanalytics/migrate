@@ -7,7 +7,11 @@
 #'
 #' @param data A data frame or data frame extension (e.g., a tibble or data.table)
 #'   containing a minimum of three (3) column variables representing a date, a credit
-#'   risk rating, and a (continuous) metric.
+#'   risk rating, and a (continuous) metric. It is strongly recommended that a fourth
+#'   column variable representing the "ID" of the credit facility be included, as this
+#'   function requires that the data are uniquely identifiable, since we need to output
+#'   true *migration*, and not just summarized beginning and ending balances for each
+#'   rating.
 #' @param date A symbol or string, representing the column variable of the `data` data
 #'   frame argument that contains the two unique date values.
 #' @param rating A symbol or string, representing the column variable of the `data` data
