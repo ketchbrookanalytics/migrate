@@ -19,13 +19,11 @@
 #'   frame argument that contains the continuous metric values.
 #' @param percent If `TRUE`, will compute the percentage change in the continuous metric
 #'   instead of just using the absolute difference.
-#' @param id (Required if `include.new = FALSE` or `exclude.old = TRUE`) A symbol or
-#'   string, representing the column variable of the `data` data frame argument that
-#'   contains the ID values (e.g., "Customer ID", "Loan ID", etc.).
-#' @param include.new If `FALSE`, will remove ID's that only have an observation for the
-#'   later date.
-#' @param exclude.old If `TRUE`, will remove ID's that only have an observation for the
-#'   earlier date.
+#' @param method One of c("start", "end"). If "start" (this is the default), this will
+#'   migrate the values in the `metric` column variable at the earlier date value from
+#'   the `date` column variable. If "start" (this is the default), this will migrate the
+#'   values in the `metric` column variable at the later date value from the `date`
+#'   column variable.
 #'
 #' @return
 #' A data frame containing three (3) column variables representing the unique
@@ -57,26 +55,10 @@
 #'     include.new = FALSE
 #'   )
 #'
-migrate <- function(data, date, rating, metric, percent = FALSE, id = NULL, include.new = TRUE, exclude.old = FALSE) {
+migrate <- function(data, date, rating, metric, percent = FALSE, method = "start") {
 
   # Coerce input dataframe to a tibble
   data <- data %>% tibble::as_tibble()
-
-  # Require the `id` argument be completed if either `include.new = FALSE`
-  # or `exclude.old = TRUE`
-  if (include.new == FALSE | exclude.old == TRUE) {
-
-    if (missing(id)) {
-
-      stop("Error: If `include.new` = FALSE or `exclude.old` = TRUE, then `id` must be specified.")
-
-    }
-
-    # Create variables for tidy evaluation
-    id_quo <- dplyr::enquo(id)
-    id_name <- dplyr::quo_name(id_quo)
-
-  }
 
   # Create variables for tidy evaluation
   date_quo <- dplyr::enquo(date)
@@ -145,34 +127,18 @@ migrate <- function(data, date, rating, metric, percent = FALSE, id = NULL, incl
     unique() %>%
     max()
 
-  # Exclude credit that didn't exist on the first date if user specifies in
-  # `include.new` argument
-  if (include.new == FALSE) {
-
-    data <- data %>%
-      dplyr::group_by(!! id_quo) %>%
-      dplyr::filter(!(dplyr::n() < 2 && date == max_date)) %>%
-      dplyr::ungroup()
-
-  }
-
-  # Exclude credit that didn't exist on the last date if user specifies in
-  # `exclude.old` argument
-  if (exclude.old == TRUE) {
-
-    data <- data %>%
-      dplyr::group_by(!! id_quo) %>%
-      dplyr::filter(!(dplyr::n() < 2 && date == min_date)) %>%
-      dplyr::ungroup()
-
-  }
-
   # Pivot the data from long to wide based upon the 'date' column variable
   data <- data %>%
     tidyr::pivot_wider(
       names_from = !! date_quo,
       values_from = c((!! rating_quo), (!! metric_quo))
-    )
+    ) %>%
+    tidyr::drop_na()   # remove any observations that only appeared at one date;
+                       # we have no way of plotting them in a migration matrix
+                       # since we either don't know what rating they're migrating
+                       # to (in the case where it only appears at the earlier date)
+                       # or from (in the case where it only appears at the later
+                       # date)
 
   # Create a character vector of new column names to apply to the 'data' dataframe,
   # replacing the date values in the column names with "start" and "end"
@@ -204,33 +170,61 @@ migrate <- function(data, date, rating, metric, percent = FALSE, id = NULL, incl
       .drop = FALSE
     )
 
+  # If the `method` argument is not set to one of c("start", "end"), stop
+  # the function and return a message
+  if (!method %in% c("start", "end")) {
+
+    stop("`method` argument must be set to either \"start\" or \"end\"")
+
+  }
+
+  # If `method` argument is set to "start" (this is the default), summarise
+  # using the values for the metric column variable at the earlier date (i.e.,
+  # value at the beginning of the migration period)
+  if (method == "start") {
+
+    data <- data %>%
+      dplyr::summarise(
+        !! metric_name := sum(!! metric_start_sym),
+        .groups = "drop"
+      )
+
+  }
+
+  # If `method` argument is set to "end", summarise using the values for the
+  # metric column variable at the later date (i.e., value at the end of the
+  # migration period)
+  if (method == "end") {
+
+    data <- data %>%
+      dplyr::summarise(
+        !! metric_name := sum(!! metric_end_sym),
+        .groups = "drop"
+      )
+
+  }
+
   # If the user set `percent = TRUE` in function argument...
   if (percent == TRUE) {
 
-    # ...compute the % change between the starting & ending summed values in the
-    # metric variable across each group in the 'data' dataframe
+    # ...compute the % of the metric column variable value for starting rating
+    # class that ended up in the ending rating class
     data %>%
-      dplyr::summarise(
-        !! metric_name := (sum(!! metric_end_sym) - sum(!! metric_start_sym)) / sum(!! metric_start_sym),
-        .groups = "drop"
+      dplyr::group_by(!! rating_start_sym) %>%
+      dplyr::mutate(
+        !! metric_name := !! dplyr::sym(metric_name) / sum(!! dplyr::sym(metric_name))
       ) %>%
+      dplyr::ungroup() %>%
       # Replace `NaN` values with `Inf` so that they are not dropped with `drop_na()`
       dplyr::mutate(!! metric_name := ifelse(is.nan(!! dplyr::sym(metric_name)), Inf, !! dplyr::sym(metric_name))) %>%
       tidyr::drop_na()
 
-    # If `percent = FALSE`...
+    # otherwise, if `percent == FALSE` (this is the default) return the `data`
+    # dataframe
   } else {
 
-    # ...compute the straight change between the starting & ending summed values
-    # in the metric variable across each group in the 'data' dataframe
-    data %>%
-      dplyr::summarise(
-        !! metric_name := sum(!! metric_end_sym) - sum(!! metric_start_sym),
-        .groups = "drop"
-      ) %>%
-      tidyr::drop_na()
+    data
 
   }
-
 
 }
