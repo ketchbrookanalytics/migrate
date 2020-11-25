@@ -4,16 +4,7 @@
 \alias{migrate}
 \title{Summarize the migration of a data frame}
 \usage{
-migrate(
-  data,
-  date,
-  rating,
-  metric,
-  percent = FALSE,
-  id = NULL,
-  include.new = TRUE,
-  exclude.old = FALSE
-)
+migrate(data, date, rating, metric, percent = FALSE, method = "start")
 }
 \arguments{
 \item{data}{A data frame or data frame extension (e.g., a tibble or data.table)
@@ -35,15 +26,11 @@ frame argument that contains the continuous metric values.}
 \item{percent}{If `TRUE`, will compute the percentage change in the continuous metric
 instead of just using the absolute difference.}
 
-\item{id}{(Required if `include.new = FALSE` or `exclude.old = TRUE`) A symbol or
-string, representing the column variable of the `data` data frame argument that
-contains the ID values (e.g., "Customer ID", "Loan ID", etc.).}
-
-\item{include.new}{If `FALSE`, will remove ID's that only have an observation for the
-later date.}
-
-\item{exclude.old}{If `TRUE`, will remove ID's that only have an observation for the
-earlier date.}
+\item{method}{One of c("start", "end"). If "start" (this is the default), this will
+migrate the values in the `metric` column variable at the earlier date value from
+the `date` column variable. If "start" (this is the default), this will migrate the
+values in the `metric` column variable at the later date value from the `date`
+column variable.}
 }
 \value{
 A data frame containing three (3) column variables representing the unique
@@ -56,7 +43,7 @@ from each beginning credit risk rating category to each ending credit risk ratin
 given a data frame input.
 }
 \examples{
-# Return the absolute difference in `principal_balance`
+# Return the absolute migration in `principal_balance`
 mock_credit \%>\%
   migrate(
     date = date,
@@ -64,16 +51,15 @@ mock_credit \%>\%
     metric = principal_balance
   )
 
-# Return the percent difference in `principal_balance` while excluding "new"
-# `customer_id` values
+# Return the percent migration in `principal_balance` while using the "end"
+# method for which period's metric values to migrate
 mock_credit \%>\%
   migrate(
     date = date,
     rating = risk_rating,
     metric = principal_balance,
     percent = TRUE,
-    id = customer_id,
-    include.new = FALSE
+    method = "end"
   )
 
 }

@@ -35,7 +35,7 @@
 #' @export
 #'
 #' @examples
-#' # Return the absolute difference in `principal_balance`
+#' # Return the absolute migration in `principal_balance`
 #' mock_credit %>%
 #'   migrate(
 #'     date = date,
@@ -43,16 +43,15 @@
 #'     metric = principal_balance
 #'   )
 #'
-#' # Return the percent difference in `principal_balance` while excluding "new"
-#' # `customer_id` values
+#' # Return the percent migration in `principal_balance` while using the "end"
+#' # method for which period's metric values to migrate
 #' mock_credit %>%
 #'   migrate(
 #'     date = date,
 #'     rating = risk_rating,
 #'     metric = principal_balance,
 #'     percent = TRUE,
-#'     id = customer_id,
-#'     include.new = FALSE
+#'     method = "end"
 #'   )
 #'
 migrate <- function(data, date, rating, metric, percent = FALSE, method = "start") {
