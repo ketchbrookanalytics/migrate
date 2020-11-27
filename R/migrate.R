@@ -2,96 +2,158 @@
 #'
 #' @description
 #' `migrate()` summarizes the transition amount (or percentage) of a continuous variable
-#' from each beginning credit risk rating category to each ending credit risk rating,
+#' from each beginning credit risk state category to each ending credit risk state,
 #' given a data frame input.
 #'
 #' @param data A data frame or data frame extension (e.g., a tibble or data.table)
-#'   containing a minimum of four (4) column variables representing a date, a credit
-#'   risk rating, a (continuous) metric, and an ID identifying the credit facility (we
-#'   would expect to see most unique values in this column variable appear twice in the
-#'   dataset; once at the first date and again at the second date, unless the credit
-#'   only existed at one of those two dates).
+#'   containing a minimum of three (3) column variables representing a date, a credit
+#'   risk state, and an ID identifying the credit facility (we would expect to see most
+#'   unique values in this column variable appear twice in the dataset; once at the
+#'   first date and again at the second date, unless the credit only existed at one of
+#'   those two dates).
 #' @param date A symbol or string, representing the column variable of the `data` data
 #'   frame argument that contains the two unique date values.
-#' @param rating A symbol or string, representing the column variable of the `data` data
-#'   frame argument that contains the credit risk rating values.
-#' @param metric A symbol or string, representing the column variable of the `data` data
-#'   frame argument that contains the continuous metric values.
-#' @param percent If `TRUE`, will compute the percentage change in the continuous metric
-#'   instead of just using the absolute difference.
+#' @param state A symbol or string, representing the column variable of the `data` data
+#'   frame argument that contains the credit risk state values.
+#' @param id (Optional) a symbol or string, representing the column variable of the
+#'   `data` data frame argument that contains the unique identifier to track where a
+#'   particular credit facility migrated to/from. If left null, `migrate()` will attempt
+#'   to use the first column variable from the data frame provided in the `data` argument.
+#' @param metric (Optional) a symbol or string, representing the column variable of the
+#'   `data` data frame argument that contains the continuous metric values.
+#' @param percent If `TRUE`, will calculate the migration on a percentage basis (rather
+#'   than an absolute basis, which is the default).
 #' @param method One of c("start", "end"). If "start" (this is the default), this will
 #'   migrate the values in the `metric` column variable at the earlier date value from
 #'   the `date` column variable. If "start" (this is the default), this will migrate the
 #'   values in the `metric` column variable at the later date value from the `date`
-#'   column variable.
+#'   column variable. If the `metric` column variable is not defined (i.e., `migrate()`
+#'   returns the count of credit facilities that migrated), this argument does nothing.
+#' @param rating Deprecated; please use `state` instead.
 #'
 #' @return
 #' A data frame containing three (3) column variables representing the unique
-#' combinations of starting & ending credit risk ratings and the migrated difference in
-#' the continuous metric.
+#' combinations of starting & ending credit risk states and the calculated migration
+#' observed during the period.
 #'
 #' @importFrom rlang :=
 #'
 #' @export
 #'
 #' @examples
-#' # Return the absolute migration in `principal_balance`
-#' mock_credit %>%
-#'   migrate(
-#'     date = date,
-#'     rating = risk_rating,
-#'     metric = principal_balance
-#'   )
+#' # Return the absolute migration of the number of credit facilities
+#' migrate(
+#'   data = mock_credit,
+#'   date = date,
+#'   state = risk_rating,
+#'   id = customer_id
+#' )
 #'
 #' # Return the percent migration in `principal_balance` while using the "end"
 #' # method for which period's metric values to migrate
-#' mock_credit %>%
-#'   migrate(
-#'     date = date,
-#'     rating = risk_rating,
-#'     metric = principal_balance,
-#'     percent = TRUE,
-#'     method = "end"
-#'   )
+#' migrate(
+#'   data = mock_credit,
+#'   date = date,
+#'   rating = risk_rating,
+#'   id = customer_id,
+#'   metric = principal_balance,
+#'   percent = TRUE
+#' )
 #'
-migrate <- function(data, date, rating, metric, percent = FALSE, method = "start") {
+migrate <- function(data, date, state, id = NULL, metric = NULL, percent = FALSE, method = "start", rating) {
 
-  # Coerce input dataframe to a tibble
+  # Coerce input data frame to a tibble
   data <- data %>% tibble::as_tibble()
 
   # Create variables for tidy evaluation
   date_quo <- dplyr::enquo(date)
   date_name <- dplyr::quo_name(date_quo)
 
-  rating_quo <- dplyr::enquo(rating)
-  rating_name <- dplyr::quo_name(rating_quo)
+  if (!missing(rating)) {
 
-  metric_quo <- dplyr::enquo(metric)
+    warning(
+      "argument `rating` is deprecated; please use `state` instead.",
+      call. = FALSE
+    )
+
+    state_quo <- dplyr::enquo(rating)
+
+  } else {
+
+    state_quo <- dplyr::enquo(state)
+
+  }
+
+  state_name <- dplyr::quo_name(state_quo)
+
+  # If the `id` argument is missing, try using the first column
+  # variable from the data frame
+  if (missing(id)) {
+
+    cat(
+      "Using first column",
+      crayon::blue(colnames(data)[1]),
+      "as `id` column; set this with the `id` argument."
+    ) %>% message()
+
+    if (is.numeric(data[,1])) {
+
+      cat(
+      "`id` column",
+      crayon::blue(colnames(data)[1]),
+      "shouldn't be numeric."
+      ) %>% stop()
+
+    }
+
+    id_quo <- colnames(data)[1] %>% dplyr::sym()
+
+
+  } else {
+
+    id_quo <- dplyr::enquo(id)
+
+  }
+
+  id_name <- dplyr::quo_name(id_quo)
+
+  # If the `metric` argument is left null, create a new quoted object
+  # called 'count'
+  if (missing(metric)) {
+
+    metric_quo <- dplyr::sym("count")
+
+  } else {
+
+    metric_quo <- dplyr::enquo(metric)
+
+  }
+
   metric_name <- dplyr::quo_name(metric_quo)
 
-  # Capture whether or not the `rating` variable in the 'data' dataframe
+  # Capture whether or not the `state` variable in the 'data' data frame
   # is type "factor"
-  rating_factor_status <- is.factor(
+  state_factor_status <- is.factor(
     data %>%
-      dplyr::pull(!! rating_quo)
+      dplyr::pull(!! state_quo)
   )
 
-  # Convert `rating` variable to type `factor`, if necessary
-  if (!rating_factor_status) {
+  # Convert `state` variable to type `factor`, if necessary
+  if (!state_factor_status) {
 
     # Print message to console letting user know that variable is being
     # converted to type `factor`
     cat(
       "Converting",
-      crayon::blue(rating_name),
+      crayon::blue(state_name),
       "to type `factor`.\nTo ensure that your output is ordered correctly, make the",
-      crayon::blue(rating_name),
+      crayon::blue(state_name),
       "column variable in your data frame an ordered",
       "factor before passing it to `migrate()`."
     ) %>% message()
 
     data <- data %>%
-      dplyr::mutate(rating_name := as.factor(!! rating_quo))
+      dplyr::mutate(state_name := as.factor(!! state_quo))
 
   }
 
@@ -126,15 +188,25 @@ migrate <- function(data, date, rating, metric, percent = FALSE, method = "start
     unique() %>%
     max()
 
+  # If the user left the `metric` argument NULL, add it as a column variable
+  # to the dataframe
+  if (missing(metric)) {
+
+    data <- data %>%
+      dplyr::mutate(!! metric_name := 1)
+
+  }
+
   # Pivot the data from long to wide based upon the 'date' column variable
   data <- data %>%
     tidyr::pivot_wider(
+      id_cols = !! id_quo,
       names_from = !! date_quo,
-      values_from = c((!! rating_quo), (!! metric_quo))
+      values_from = c((!! state_quo), (!! metric_quo))
     ) %>%
     tidyr::drop_na()   # remove any observations that only appeared at one date;
                        # we have no way of plotting them in a migration matrix
-                       # since we either don't know what rating they're migrating
+                       # since we either don't know what state they're migrating
                        # to (in the case where it only appears at the earlier date)
                        # or from (in the case where it only appears at the later
                        # date)
@@ -155,17 +227,17 @@ migrate <- function(data, date, rating, metric, percent = FALSE, method = "start
   colnames(data) <- col_names
 
   # Quote the new column names for use in tidy evaluation
-  rating_start_sym <- paste0(rating_name, "_start") %>% dplyr::sym()
-  rating_end_sym <- paste0(rating_name, "_end") %>% dplyr::sym()
+  state_start_sym <- paste0(state_name, "_start") %>% dplyr::sym()
+  state_end_sym <- paste0(state_name, "_end") %>% dplyr::sym()
 
   metric_start_sym <- paste0(metric_name, "_start") %>% dplyr::sym()
   metric_end_sym <- paste0(metric_name, "_end") %>% dplyr::sym()
 
-  # Group the data by the rating variables, preserving all factor levels
+  # Group the data by the state variables, preserving all factor levels
   data <- data %>%
     dplyr::group_by(
-      !! rating_start_sym,
-      !! rating_end_sym,
+      !! state_start_sym,
+      !! state_end_sym,
       .drop = FALSE
     )
 
@@ -206,10 +278,10 @@ migrate <- function(data, date, rating, metric, percent = FALSE, method = "start
   # If the user set `percent = TRUE` in function argument...
   if (percent == TRUE) {
 
-    # ...compute the % of the metric column variable value for starting rating
-    # class that ended up in the ending rating class
+    # ...compute the % of the metric column variable value for starting state
+    # class that ended up in the ending state class
     data %>%
-      dplyr::group_by(!! rating_start_sym) %>%
+      dplyr::group_by(!! state_start_sym) %>%
       dplyr::mutate(
         !! metric_name := !! dplyr::sym(metric_name) / sum(!! dplyr::sym(metric_name))
       ) %>%
