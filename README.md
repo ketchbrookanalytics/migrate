@@ -27,7 +27,7 @@ grid represents the total balance in the portfolio at 2020-06-30 that
 started at the Risk Rating represented on the left-hand vertical axis
 and ended (at 2020-09-30) at the Risk Rating represented on the upper
 horizontal axis of the matrix. For example, $6.58M moved from a Risk
-Rating **AAA** at 2020-06-30 to a Risk Rating **A** at 2020-09-30.
+Rating **AAA** at 2020-06-30 to a Risk Rating **AA** at 2020-09-30.
 
 While the above, *absolute*, migration example is typically more of a
 reporting function, the *percentage* (or probabilistic) methodology is
