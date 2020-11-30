@@ -36,7 +36,7 @@ While the above, *absolute*, migration example is typically more of a reporting 
 
 ![](man/figures/markov_matrix.png)
 
-## Future Plans for `migrate`
+### Future Plans for `migrate`
 
 Future development plans for this package include building functionality for the more complex **duration**/**hazard** methodology, including both the *time-homogeneous* and *non-homogeneous* implementations.
 

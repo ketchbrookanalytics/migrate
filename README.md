@@ -23,7 +23,7 @@ transition matrices”*).
 `migrate` provides an easy way to calculate absolute or percentage
 migration within a credit portfolio. The above image shows a typical
 credit migration matrix using the *absolute* approach; each cell in the
-grid represent the total balance in the portfolio at 2020-06-30 that
+grid represents the total balance in the portfolio at 2020-06-30 that
 started at the Risk Rating represented on the left-hand vertical axis
 and ended (at 2020-09-30) at the Risk Rating represented on the upper
 horizontal axis of the matrix. For example, $1.98M moved from a Risk
@@ -38,6 +38,8 @@ single time step, echoing a Markov process. We can visualize this in a
 matrix, for a credit portfolio with *N* unique, ordinal states:
 
 ![](man/figures/markov_matrix.png)
+
+### Future Plans for `migrate`
 
 Future development plans for this package include building functionality
 for the more complex **duration**/**hazard** methodology, including both
@@ -66,7 +68,6 @@ First, load the package & the mock dataset (as a data frame) using
 
 ``` r
 library(migrate)
-#> Warning: package 'migrate' was built under R version 4.0.3
 data("mock_credit")
 ```
 
@@ -75,12 +76,12 @@ We can get a look at the data using `dplyr::glimpse()`
 ``` r
 library(dplyr)
 glimpse(mock_credit)
-#> Rows: 900
+#> Rows: 1,000
 #> Columns: 4
-#> $ customer_id       <chr> "Customer_1083", "Customer_1468", "Customer_1430", "Customer_1498", "Customer_1272", "Customer_1058", "Customer_1397", "Customer_1061", "Customer_1199", "Customer_1120", "Customer_1053", "Customer_1106", "Customer_1165", "Customer_1008", "Customer_1196", "Customer_1064", "Customer_1231", "Customer_1315", "Customer_1127", "Customer_1184", "Customer_1361", "Customer_1290", "Customer_1004", "Customer_1096", "Customer_1130", "Customer_1297", "Customer_1401", "Customer_1425", "Customer_1437", "Customer_1005", "Customer_1357", "Customer_1316", "Customer_1208", "Customer_1065", "Customer_1423", "Customer_1087", "Customer_1162", "Customer_1147", "Customer_1251", "Customer_1268", "Customer_1245", "Customer_1206", "Customer_1236", "Customer_1063", "Customer_1246", "Customer_1079", "Customer_1371", "Customer_1091", "Customer_1261", "Customer_1284", "Customer_1157", "Customer_1278", "Customer_1441", "Customer_1037", "Customer_1176", "Customer_1181", "Customer_1171",...
-#> $ date              <date> 2020-06-30, 2020-06-30, 2020-09-30, 2020-09-30, 2020-09-30, 2020-06-30, 2020-09-30, 2020-09-30, 2020-06-30, 2020-06-30, 2020-09-30, 2020-09-30, 2020-06-30, 2020-09-30, 2020-06-30, 2020-06-30, 2020-09-30, 2020-06-30, 2020-09-30, 2020-06-30, 2020-09-30, 2020-09-30, 2020-06-30, 2020-09-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-09-30, 2020-06-30, 2020-06-30, 2020-09-30, 2020-09-30, 2020-06-30, 2020-09-30, 2020-09-30, 2020-06-30, 2020-09-30, 2020-09-30, 2020-06-30, 2020-06-30, 2020-09-30, 2020-09-30, 2020-06-30, 2020-09-30, 2020-09-30, 2020-09-30, 2020-09-30, 2020-09-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-09-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-09-30, 2020-09-30, 2020-09-30, 2020-06-30, 2020-09-30, 2020-09-30, 2020-09-30, 2020-09-30, 2020-06-30, 2020-09-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-09-30, 2020-09-30, 2020-06-30, 2020-06-30, 2020-06...
-#> $ risk_rating       <fct> 6, 10, 8, 5, 5, 6, 8, 8, 8, 11, 7, 8, 6, 10, 10, 5, 6, 5, 6, 7, 10, 4, 11, 10, 8, 5, 5, 6, 9, 10, 9, 10, 10, 8, 7, 7, 11, 7, 6, 7, 7, 8, 9, 6, 8, 7, 8, 10, 11, 8, 9, 8, 11, 8, 11, 7, 6, 6, 8, 9, 6, 6, 6, 6, 7, 9, 10, 10, 7, 11, 11, 6, 7, 6, 7, 6, 11, 9, 8, 5, 6, 5, 7, 6, 11, 7, 7, 9, 11, 11, 8, 12, 7, 6, 8, 6, 8, 9, 7, 7, 5, 6, 10, 9, 7, 8, 7, 8, 9, 6, 10, 6, 6, 4, 7, 12, 11, 12, 9, 8, 8, 11, 6, 4, 11, 5, 6, 7, 7, 10, 9, 8, 6, 8, 6, 10, 12, 7, 7, 6, 11, 10, 8, 6, 8, 12, 7, 11, 6, 11, 6, 7, 6, 4, 5, 9, 7, 10, 4, 4, 8, 7, 6, 8, 10, 9, 11, 6, 6, 9, 5, 11, 9, 6, 9, 11, 6, 6, 11, 6, 7, 5, 6, 8, 10, 7, 10, 8, 10, 9, 7, 9, 9, 8, 6, 7, 9, 7, 8, 10, 9, 10, 8, 9, 9, 4, 6, 10, 8, 6, 11, 4, 6, 7, 7, 9, 6, 5, 7, 8, 9, 6, 9, 11, 6, 7, 6, 6, 7, 8, 4, 9, 8, 6, 8, 7, 5, 7, 7, 9, 7, 7, 7, 9, 7, 11, 6, 9, 8, 8, 9, 4, 7, 12, 9, 7, 8, 8, 9, 6, 7, 8, 10, 9, 5, 6, 9, 8, 4, 7, 9, 8, 11, 9, 8, 11, 7, 6, 10, 9, 6, 7, 8, 9, 11, 6, 7, 6, 10, 9, 5, 8, 9, 11, 6, 8, 6, 8, 9, 7, 6, 8, ...
-#> $ principal_balance <dbl> 2201000, 1538000, 3447000, 1302000, 2306000, 666000, 938000, 737000, 799000, 1747000, 722000, 1206000, 1040000, 1372000, 510000, 400000, 890000, 1021000, 1849000, 1205000, 503000, 637000, 750000, 673000, 3658000, 932000, 856000, 2881000, 989000, 1177000, 242000, 659000, 375000, 669000, 546000, 976000, 253000, 1232000, 1850000, 743000, 1156000, 787000, 1737000, 2218000, 1284000, 1283000, 1233000, 2013000, 853000, 1600000, 774000, 695000, 2672000, 1659000, 1273000, 1420000, 363000, 224000, 1932000, 2161000, 3197000, 2763000, 916000, 4921000, 253000, 619000, 877000, 618000, 2194000, 464000, 334000, 854000, 1493000, 515000, 4343000, 983000, 943000, 814000, 1259000, 1108000, 833000, 576000, 1223000, 492000, 2963000, 327000, 1261000, 961000, 1374000, 1424000, 376000, 2269000, 299000, 1065000, 1149000, 1964000, 947000, 390000, 1041000, 1270000, 2598000, 933000, 1793000, 551000, 1268000, 837000, 1686000, 967000, 312000, 593000, 484000, 223000, 509000, 1380000, 2...
+#> $ customer_id       <chr> "Customer_1001", "Customer_1002", "Customer_1003", "Customer_1004", "Customer_1005", "Customer_1006", "Customer_1007", "Customer_1008", "Customer_1009", "Customer_1010", "Customer_1011", "Customer_1012", "Customer_1013", "Customer_1014", "Customer_1015", "Customer_1016", "Customer_1017", "Customer_1018", "Customer_1019", "Customer_1020", "Customer_1021", "Customer_1022", "Customer_1023", "Customer_1024", "Customer_1025", "Customer_1026", "Customer_1027", "Customer_1028", "Customer_1029", "Customer_1030", "Customer_1031", "Customer_1032", "Customer_1033", "Customer_1034", "Customer_1035", "Customer_1036", "Customer_1037", "Customer_1038", "Customer_1039", "Customer_1040", "Customer_1041", "Customer_1042", "Customer_1043", "Customer_1044", "Customer_1045", "Customer_1046", "Customer_1047", "Customer_1048", "Customer_1049", "Customer_1050", "Customer_1051", "Customer_1052", "Customer_1053", "Customer_1054", "Customer_1055", "Customer_1056", "Customer_1057",...
+#> $ date              <date> 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06-30, 2020-06...
+#> $ risk_rating       <ord> A, AAA, BBB, BB, AA, BB, CCC, BB, AAA, B, A, A, BBB, A, A, A, AA, CCC, B, A, AA, BBB, A, AA, B, AA, BBB, B, BBB, A, AA, BB, B, BB, BBB, A, CCC, BBB, B, A, BB, A, A, BBB, A, B, BB, BB, BB, B, BBB, CCC, B, BB, A, AA, AA, BBB, AA, A, CCC, BB, AA, B, BB, A, B, A, AAA, B, B, BBB, A, BBB, A, A, AA, CCC, A, AAA, A, A, B, AA, BB, AA, BBB, BBB, BBB, AA, B, BBB, BBB, CCC, BB, A, BB, AAA, AA, BB, BB, A, BBB, BB, AA, AAA, B, AA, BBB, B, BBB, BB, AA, B, BBB, AA, AA, AA, A, A, A, B, B, A, BBB, BBB, B, BBB, AA, B, BB, B, AAA, B, BB, A, A, BB, BBB, BBB, AA, BBB, A, AA, BB, A, A, AA, B, B, BBB, BB, A, BB, B, BB, AA, B, A, BBB, AAA, AA, BB, BB, AA, BB, BB, BB, BBB, B, BBB, AA, AAA, AA, BB, A, AA, AAA, B, A, A, B, A, CCC, BB, BBB, A, BBB, AA, B, AA, BB, AA, AA, A, B, BBB, CCC, BBB, BBB, AAA, B, BBB, AA, BBB, B, BB, A, BB, CCC, BB, CCC, BBB, B, AAA, A, AAA, B, AA, AAA, A, AA, A, BBB, A, AA, B, B, AA, A, A, BBB, A, AA, A, AA, BBB, B, A, AA, A, AAA, BB, BB, BB, A, A, B, BB, A...
+#> $ principal_balance <dbl> 915000, 979000, 1400000, 627000, 1403000, 1096000, 396000, 444000, 660000, 348000, 905000, 1054000, 909000, 895000, 2008000, 1281000, 1165000, 1390000, 1557000, 211000, 612000, 844000, 1211000, 693000, 1989000, 1134000, 1569000, 1076000, 514000, 952000, 2511000, 700000, 1200000, 771000, 2090000, 1513000, 155000, 2398000, 1530000, 752000, 22000, 1253000, 878000, 803000, 808000, 351000, 1005000, 1083000, 480000, 1733000, 778000, 1854000, 96000, 2023000, 892000, 1623000, 404000, 1652000, 1601000, 885000, 1387000, 1087000, 316000, 1488000, 992000, 478000, 1066000, 1432000, 375000, 565000, 282000, 1212000, 1616000, 1613000, 357000, 1577000, 1971000, 203000, 1315000, 20000, 284000, 2248000, 2048000, 2105000, 1024000, 875000, 606000, 1176000, 332000, 269000, 1124000, 102000, 913000, 787000, 2990000, 1617000, 259000, 760000, 1756000, 1283000, 2720000, 2386000, 501000, 303000, 315000, 1977000, 807000, 1646000, 1093000, 1346000, 3739000, 74000, 383000, 1001000, 98...
 ```
 
 Note that an important feature of the dataset is that there are exactly
@@ -97,43 +98,40 @@ To summarize the migration within the data, use the `migrate()` function
 migrated_df <- migrate(
   data = mock_credit, 
   date = date, 
-  rating = risk_rating, 
-  metric = principal_balance
+  state = risk_rating, 
+  id = customer_id
 )
 
 head(migrated_df)
 #> # A tibble: 6 x 3
-#>   risk_rating_start risk_rating_end principal_balance
-#>   <fct>             <fct>                       <dbl>
-#> 1 4                 4                        12720000
-#> 2 4                 5                         3807000
-#> 3 4                 6                         1979000
-#> 4 4                 7                               0
-#> 5 4                 8                               0
-#> 6 4                 9                               0
+#>   risk_rating_start risk_rating_end  count
+#>   <fct>             <fct>            <dbl>
+#> 1 AAA               AAA             0.774 
+#> 2 AAA               AA              0.194 
+#> 3 AAA               A               0.0323
+#> 4 AAA               BBB             0     
+#> 5 AAA               BB              0     
+#> 6 AAA               B               0
 ```
 
 To create the state migration matrix, use the `build_matrix()` function
 
 ``` r
 build_matrix(migrated_df)
-#> Using  risk_rating_start  as the 'rating_start' column variable
+#> Using  risk_rating_start  as the 'state_start' column variable
 #> 
-#> Using  risk_rating_end  as the 'rating_end' column variable
+#> Using  risk_rating_end  as the 'state_end' column variable
 #> 
-#> Using  principal_balance  as the 'metric' column variable
+#> Using  count  as the 'metric' column variable
 #> 
-#>           4        5        6        7        8        9       10       11      12      13
-#> 4  12720000  3807000  1979000        0        0        0        0        0       0       0
-#> 5   8690000 20029000  2655000        0        0        0        0        0       0       0
-#> 6         0 10050000 73565000 15292000        0        0        0        0       0       0
-#> 7         0  1760000  7489000 67429000 23386000  2778000        0        0       0       0
-#> 8         0        0  1096000  2095000 68301000 10637000   220000        0       0       0
-#> 9         0        0        0        0        0 41371000  9939000  2191000 1737000       0
-#> 10        0        0        0        0  1861000  8134000 28044000 12288000  216000       0
-#> 11        0        0        0        0        0        0  2335000 26242000 9398000 2672000
-#> 12        0        0        0        0        0        0        0   968000 4393000 4221000
-#> 13        0        0        0        0        0        0        0        0       0       0
+#>             AAA         AA          A        BBB         BB          B        CCC
+#> AAA 0.774193548 0.19354839 0.03225806 0.00000000 0.00000000 0.00000000 0.00000000
+#> AA  0.101123596 0.66292135 0.15730337 0.07865169 0.00000000 0.00000000 0.00000000
+#> A   0.008333333 0.06666667 0.72500000 0.16666667 0.03333333 0.00000000 0.00000000
+#> BBB 0.000000000 0.00000000 0.11363636 0.68181818 0.14772727 0.05681818 0.00000000
+#> BB  0.000000000 0.00000000 0.00000000 0.11392405 0.63291139 0.16455696 0.08860759
+#> B   0.000000000 0.00000000 0.00000000 0.01388889 0.09722222 0.62500000 0.26388889
+#> CCC 0.000000000 0.00000000 0.00000000 0.00000000 0.00000000 0.14285714 0.85714286
 ```
 
 Or, to do it all in one shot, use the `%>%`
@@ -142,8 +140,24 @@ Or, to do it all in one shot, use the `%>%`
 mock_credit %>% 
   migrate(
     date = date, 
-    rating = risk_rating, 
-    metric = principal_balance
+    state = risk_rating, 
+    id = customer_id, 
+    metric = principal_balance, 
+    percent = FALSE
   ) %>% 
   build_matrix()
+#> Using  risk_rating_start  as the 'state_start' column variable
+#> 
+#> Using  risk_rating_end  as the 'state_end' column variable
+#> 
+#> Using  principal_balance  as the 'metric' column variable
+#> 
+#>          AAA       AA        A      BBB       BB        B      CCC
+#> AAA 29042000  6575000    20000        0        0        0        0
+#> AA   6445000 58095000 13045000 14467000        0        0        0
+#> A     804000  7898000 85330000 21015000  5829000        0        0
+#> BBB        0        0 12461000 65315000 13911000  8140000        0
+#> BB         0        0        0 11374000 45986000 14057000  5723000
+#> B          0        0        0   413000  6700000 47402000 17132000
+#> CCC        0        0        0        0        0  2094000 14843000
 ```
