@@ -30,7 +30,7 @@ The goal of migrate is to provide credit analysts with an easy set of tools for 
 
 ## Methodology
 
-`migrate` provides an easy way to calculate absolute or percentage migration within a credit portfolio. The above image shows a typical credit migration matrix using the *absolute* approach; each cell in the grid represents the total balance in the portfolio at 2020-06-30 that started at the Risk Rating represented on the left-hand vertical axis and ended (at 2020-09-30) at the Risk Rating represented on the upper horizontal axis of the matrix. For example, $1.98M moved from a Risk Rating **4** at 2020-06-30 to a Risk Rating **6** at 2020-09-30.
+`migrate` provides an easy way to calculate absolute or percentage migration within a credit portfolio. The above image shows a typical credit migration matrix using the *absolute* approach; each cell in the grid represents the total balance in the portfolio at 2020-06-30 that started at the Risk Rating represented on the left-hand vertical axis and ended (at 2020-09-30) at the Risk Rating represented on the upper horizontal axis of the matrix. For example, $6.58M moved from a Risk Rating **AAA** at 2020-06-30 to a Risk Rating **A** at 2020-09-30.
 
 While the above, *absolute*, migration example is typically more of a reporting function, the *percentage* (or probabilistic) methodology is often more of a statistical credit risk modeling exercise. Currently, this package only supports the simple "cohort" methodology. This estimates the probability of moving from state *i* to state *j* in a single time step, echoing a Markov process. We can visualize this in a matrix, for a credit portfolio with *N* unique, ordinal states:  
 
