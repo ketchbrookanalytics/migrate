@@ -54,7 +54,8 @@ To summarize the migration within the data, use the `migrate()` function
 migrated_df <- migrate(
   data = mock_credit, 
   date = date, 
-  rating = risk_rating, 
+  state = risk_rating, 
+  id = customer_id, 
   metric = principal_balance
 )
 
@@ -71,7 +72,8 @@ Or, to do it all in one shot, use the `%>%`
 mock_credit %>% 
   migrate(
     date = date, 
-    rating = risk_rating, 
+    state = risk_rating, 
+    id = customer_id, 
     metric = principal_balance
   ) %>% 
   build_matrix()
