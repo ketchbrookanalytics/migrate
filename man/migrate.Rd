@@ -4,62 +4,70 @@
 \alias{migrate}
 \title{Summarize the migration of a data frame}
 \usage{
-migrate(data, date, rating, metric, percent = FALSE, method = "start")
+migrate(
+  data,
+  date,
+  state,
+  id = NULL,
+  metric = NULL,
+  percent = TRUE,
+  rating = NULL
+)
 }
 \arguments{
 \item{data}{A data frame or data frame extension (e.g., a tibble or data.table)
-containing a minimum of four (4) column variables representing a date, a credit
-risk rating, a (continuous) metric, and an ID identifying the credit facility (we
-would expect to see most unique values in this column variable appear twice in the
-dataset; once at the first date and again at the second date, unless the credit
-only existed at one of those two dates).}
+containing a minimum of three (3) column variables representing a date, a credit
+risk state, and an ID identifying the credit facility (we would expect to see most
+unique values in this column variable appear twice in the dataset; once at the
+first date and again at the second date, unless the credit only existed at one of
+those two dates).}
 
 \item{date}{A symbol or string, representing the column variable of the `data` data
 frame argument that contains the two unique date values.}
 
-\item{rating}{A symbol or string, representing the column variable of the `data` data
-frame argument that contains the credit risk rating values.}
+\item{state}{A symbol or string, representing the column variable of the `data` data
+frame argument that contains the credit risk state values.}
 
-\item{metric}{A symbol or string, representing the column variable of the `data` data
-frame argument that contains the continuous metric values.}
+\item{id}{(Optional) a symbol or string, representing the column variable of the
+`data` data frame argument that contains the unique identifier to track where a
+particular credit facility migrated to/from. If left null, `migrate()` will attempt
+to use the first column variable from the data frame provided in the `data` argument.}
 
-\item{percent}{If `TRUE`, will compute the percentage change in the continuous metric
-instead of just using the absolute difference.}
+\item{metric}{(Optional) a symbol or string, representing the column variable of the
+`data` data frame argument that contains the continuous metric values.}
 
-\item{method}{One of c("start", "end"). If "start" (this is the default), this will
-migrate the values in the `metric` column variable at the earlier date value from
-the `date` column variable. If "start" (this is the default), this will migrate the
-values in the `metric` column variable at the later date value from the `date`
-column variable.}
+\item{percent}{If `FALSE`, will calculate the migration on an absolute basis (rather
+than a percentage basis, which is the default).}
+
+\item{rating}{Deprecated; please use `state` instead.}
 }
 \value{
 A data frame containing three (3) column variables representing the unique
-combinations of starting & ending credit risk ratings and the migrated difference in
-the continuous metric.
+combinations of starting & ending credit risk states and the calculated migration
+observed during the period.
 }
 \description{
 `migrate()` summarizes the transition amount (or percentage) of a continuous variable
-from each beginning credit risk rating category to each ending credit risk rating,
+from each beginning credit risk state category to each ending credit risk state,
 given a data frame input.
 }
 \examples{
-# Return the absolute migration in `principal_balance`
-mock_credit \%>\%
-  migrate(
-    date = date,
-    rating = risk_rating,
-    metric = principal_balance
-  )
+# Return the percent migration of the number of credit facilities
+migrate(
+  data = mock_credit,
+  date = date,
+  state = risk_rating,
+  id = customer_id
+)
 
-# Return the percent migration in `principal_balance` while using the "end"
-# method for which period's metric values to migrate
-mock_credit \%>\%
-  migrate(
-    date = date,
-    rating = risk_rating,
-    metric = principal_balance,
-    percent = TRUE,
-    method = "end"
-  )
+# Return the absolute migration in `principal_balance`
+migrate(
+  data = mock_credit,
+  date = date,
+  state = risk_rating,
+  id = customer_id,
+  metric = principal_balance,
+  percent = FALSE
+)
 
 }

@@ -3,7 +3,8 @@ test_that("build_matrix() returns an object of classes `matrix` & `array`", {
   raw <- migrate(
     data = mock_credit,
     date = date,
-    rating = risk_rating,
+    state = risk_rating,
+    id = customer_id,
     metric = principal_balance
   ) %>%
     build_matrix()
