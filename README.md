@@ -16,6 +16,17 @@ transition matrices”*).
 
 <br> ![](man/figures/gt_tbl.png) <br>
 
+Currently, this package only supports the simple “cohort” methodology.
+This estimates the probability of moving from state *i* to state *j* in
+a single time step, echoing a Markov process. We can visualize this in a
+matrix, for a credit portfolio with *N* unique, ordinal states.
+
+![](man/figures/markov_matrix.png)
+
+Future development plans for this package include building functionality
+for the more complex **duration**/**hazard** methodology, including both
+the *time-homogeneous* and *non-homogeneous* implementations.
+
 ## Installation
 
 You can install the released version of migrate from

@@ -60,7 +60,7 @@
 #'   percent = TRUE
 #' )
 #'
-migrate <- function(data, date, state, id = NULL, metric = NULL, percent = FALSE, method = "start", rating) {
+migrate <- function(data, date, state, id = NULL, metric = NULL, percent = FALSE, method = "start", rating = NULL) {
 
   # Coerce input data frame to a tibble
   data <- data %>% tibble::as_tibble()
@@ -69,17 +69,21 @@ migrate <- function(data, date, state, id = NULL, metric = NULL, percent = FALSE
   date_quo <- dplyr::enquo(date)
   date_name <- dplyr::quo_name(date_quo)
 
+  # If `rating` argument is supplied...
   if (!missing(rating)) {
 
+    # ... warn user that it is deprecated
     warning(
       "argument `rating` is deprecated; please use `state` instead.",
       call. = FALSE
     )
 
+    # ... and create 'state_quo' object
     state_quo <- dplyr::enquo(rating)
 
   } else {
 
+    # otherwise use the `state` argument to create 'state_quo'
     state_quo <- dplyr::enquo(state)
 
   }
