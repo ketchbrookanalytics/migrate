@@ -14,12 +14,28 @@ The goal of migrate is to provide credit analysts with an easy set of
 tools for building *state migration matrices* (also known as *“state
 transition matrices”*).
 
-<br> ![](man/figures/gt_tbl.png) <br>
+<br>
 
-Currently, this package only supports the simple “cohort” methodology.
-This estimates the probability of moving from state *i* to state *j* in
-a single time step, echoing a Markov process. We can visualize this in a
-matrix, for a credit portfolio with *N* unique, ordinal states.
+![](man/figures/gt_tbl.png)
+
+## Methodology
+
+`migrate` provides an easy way to calculate absolute or percentage
+migration within a credit portfolio. The above image shows a typical
+credit migration matrix using the *absolute* approach; each cell in the
+grid represent the total balance in the portfolio at 2020-06-30 that
+started at the Risk Rating represented on the left-hand vertical axis
+and ended (at 2020-09-30) at the Risk Rating represented on the upper
+horizontal axis of the matrix. For example, $1.98M moved from a Risk
+Rating **4** at 2020-06-30 to a Risk Rating **6** at 2020-09-30.
+
+While the above, *absolute*, migration example is typically more of a
+reporting function, the *percentage* (or probabilistic) methodology is
+often more of a statistical credit risk modeling exercise. Currently,
+this package only supports the simple “cohort” methodology. This
+estimates the probability of moving from state *i* to state *j* in a
+single time step, echoing a Markov process. We can visualize this in a
+matrix, for a credit portfolio with *N* unique, ordinal states:
 
 ![](man/figures/markov_matrix.png)
 
@@ -50,6 +66,7 @@ First, load the package & the mock dataset (as a data frame) using
 
 ``` r
 library(migrate)
+#> Warning: package 'migrate' was built under R version 4.0.3
 data("mock_credit")
 ```
 
@@ -88,9 +105,9 @@ head(migrated_df)
 #> # A tibble: 6 x 3
 #>   risk_rating_start risk_rating_end principal_balance
 #>   <fct>             <fct>                       <dbl>
-#> 1 4                 4                         -557000
-#> 2 4                 5                        -2732000
-#> 3 4                 6                         -939000
+#> 1 4                 4                        12720000
+#> 2 4                 5                         3807000
+#> 3 4                 6                         1979000
 #> 4 4                 7                               0
 #> 5 4                 8                               0
 #> 6 4                 9                               0
@@ -106,17 +123,17 @@ build_matrix(migrated_df)
 #> 
 #> Using  principal_balance  as the 'metric' column variable
 #> 
-#>           4        5        6       7         8       9      10      11      12       13
-#> 4   -557000 -2732000  -939000       0         0       0       0       0       0        0
-#> 5  -4882000  6396000   182000       0         0       0       0       0       0        0
-#> 6         0 -3720000 -4721000  637000         0       0       0       0       0        0
-#> 7         0 -1447000  3073000 -778000 -12258000 1997000       0       0       0        0
-#> 8         0        0  -486000  825000  -3634000 3706000  750000       0       0        0
-#> 9         0        0        0       0         0   54000 3288000 1281000 -765000        0
-#> 10        0        0        0       0    258000   97000 3711000  187000 1192000        0
-#> 11        0        0        0       0         0       0  239000 7516000 2082000 -2280000
-#> 12        0        0        0       0         0       0       0 -309000 2175000  2052000
-#> 13        0        0        0       0         0       0       0       0       0        0
+#>           4        5        6        7        8        9       10       11      12      13
+#> 4  12720000  3807000  1979000        0        0        0        0        0       0       0
+#> 5   8690000 20029000  2655000        0        0        0        0        0       0       0
+#> 6         0 10050000 73565000 15292000        0        0        0        0       0       0
+#> 7         0  1760000  7489000 67429000 23386000  2778000        0        0       0       0
+#> 8         0        0  1096000  2095000 68301000 10637000   220000        0       0       0
+#> 9         0        0        0        0        0 41371000  9939000  2191000 1737000       0
+#> 10        0        0        0        0  1861000  8134000 28044000 12288000  216000       0
+#> 11        0        0        0        0        0        0  2335000 26242000 9398000 2672000
+#> 12        0        0        0        0        0        0        0   968000 4393000 4221000
+#> 13        0        0        0        0        0        0        0        0       0       0
 ```
 
 Or, to do it all in one shot, use the `%>%`
