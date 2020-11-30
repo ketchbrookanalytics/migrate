@@ -21,14 +21,8 @@
 #'   to use the first column variable from the data frame provided in the `data` argument.
 #' @param metric (Optional) a symbol or string, representing the column variable of the
 #'   `data` data frame argument that contains the continuous metric values.
-#' @param percent If `TRUE`, will calculate the migration on a percentage basis (rather
-#'   than an absolute basis, which is the default).
-#' @param method One of c("start", "end"). If "start" (this is the default), this will
-#'   migrate the values in the `metric` column variable at the earlier date value from
-#'   the `date` column variable. If "start" (this is the default), this will migrate the
-#'   values in the `metric` column variable at the later date value from the `date`
-#'   column variable. If the `metric` column variable is not defined (i.e., `migrate()`
-#'   returns the count of credit facilities that migrated), this argument does nothing.
+#' @param percent If `FALSE`, will calculate the migration on an absolute basis (rather
+#'   than a percentage basis, which is the default).
 #' @param rating Deprecated; please use `state` instead.
 #'
 #' @return
@@ -41,7 +35,7 @@
 #' @export
 #'
 #' @examples
-#' # Return the absolute migration of the number of credit facilities
+#' # Return the percent migration of the number of credit facilities
 #' migrate(
 #'   data = mock_credit,
 #'   date = date,
@@ -49,18 +43,17 @@
 #'   id = customer_id
 #' )
 #'
-#' # Return the percent migration in `principal_balance` while using the "end"
-#' # method for which period's metric values to migrate
+#' # Return the absolute migration in `principal_balance`
 #' migrate(
 #'   data = mock_credit,
 #'   date = date,
-#'   rating = risk_rating,
+#'   state = risk_rating,
 #'   id = customer_id,
 #'   metric = principal_balance,
-#'   percent = TRUE
+#'   percent = FALSE
 #' )
 #'
-migrate <- function(data, date, state, id = NULL, metric = NULL, percent = FALSE, method = "start", rating = NULL) {
+migrate <- function(data, date, state, id = NULL, metric = NULL, percent = TRUE, rating = NULL) {
 
   # Coerce input data frame to a tibble
   data <- data %>% tibble::as_tibble()
@@ -141,6 +134,31 @@ migrate <- function(data, date, state, id = NULL, metric = NULL, percent = FALSE
     data %>%
       dplyr::pull(!! state_quo)
   )
+
+  # If the `state` column variable in the `data` data frame is type
+  # "factor", capture whether or not it is ordered
+  if (state_factor_status) {
+
+    state_ordered_status <- is.ordered(
+      data %>%
+        dplyr::pull(!! state_quo)
+    )
+
+  }
+
+  # If the `state` column variable in the `data` data frame is an
+  # unordered factor, print a message to the console asking the user
+  # to convert it to an ordered factor
+  if (!state_ordered_status) {
+
+    cat(
+      "Please consider converting",
+      crayon::blue(state_name),
+      "to an ordered factor before passing it to `migrate()`, to ensure that the",
+      "rank ordering in the final matrix displays correctly."
+    ) %>% message()
+
+  }
 
   # Convert `state` variable to type `factor`, if necessary
   if (!state_factor_status) {
@@ -237,47 +255,19 @@ migrate <- function(data, date, state, id = NULL, metric = NULL, percent = FALSE
   metric_start_sym <- paste0(metric_name, "_start") %>% dplyr::sym()
   metric_end_sym <- paste0(metric_name, "_end") %>% dplyr::sym()
 
-  # Group the data by the state variables, preserving all factor levels
+  # Group the data by the state variables, preserving all factor levels, and
+  # summarize by taking the sum of the starting `metric` value for each
+  # group
   data <- data %>%
     dplyr::group_by(
       !! state_start_sym,
       !! state_end_sym,
       .drop = FALSE
+    ) %>%
+    dplyr::summarise(
+      !! metric_name := sum(!! metric_start_sym),
+      .groups = "drop"
     )
-
-  # If the `method` argument is not set to one of c("start", "end"), stop
-  # the function and return a message
-  if (!method %in% c("start", "end")) {
-
-    stop("`method` argument must be set to either \"start\" or \"end\"")
-
-  }
-
-  # If `method` argument is set to "start" (this is the default), summarise
-  # using the values for the metric column variable at the earlier date (i.e.,
-  # value at the beginning of the migration period)
-  if (method == "start") {
-
-    data <- data %>%
-      dplyr::summarise(
-        !! metric_name := sum(!! metric_start_sym),
-        .groups = "drop"
-      )
-
-  }
-
-  # If `method` argument is set to "end", summarise using the values for the
-  # metric column variable at the later date (i.e., value at the end of the
-  # migration period)
-  if (method == "end") {
-
-    data <- data %>%
-      dplyr::summarise(
-        !! metric_name := sum(!! metric_end_sym),
-        .groups = "drop"
-      )
-
-  }
 
   # If the user set `percent = TRUE` in function argument...
   if (percent == TRUE) {
