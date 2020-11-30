@@ -144,19 +144,19 @@ migrate <- function(data, date, state, id = NULL, metric = NULL, percent = TRUE,
         dplyr::pull(!! state_quo)
     )
 
-  }
+    # If the `state` column variable in the `data` data frame is an
+    # unordered factor, print a message to the console asking the user
+    # to convert it to an ordered factor
+    if (!state_ordered_status) {
 
-  # If the `state` column variable in the `data` data frame is an
-  # unordered factor, print a message to the console asking the user
-  # to convert it to an ordered factor
-  if (!state_ordered_status) {
+      cat(
+        "Please consider converting",
+        crayon::blue(state_name),
+        "to an ordered factor before passing it to `migrate()`, to ensure that the",
+        "rank ordering in the final matrix displays correctly."
+      ) %>% message()
 
-    cat(
-      "Please consider converting",
-      crayon::blue(state_name),
-      "to an ordered factor before passing it to `migrate()`, to ensure that the",
-      "rank ordering in the final matrix displays correctly."
-    ) %>% message()
+    }
 
   }
 
