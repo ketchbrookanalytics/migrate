@@ -20,6 +20,8 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 [![Travis build status](https://travis-ci.com/mthomas-ketchbrook/migrate.svg?branch=master)](https://travis-ci.com/mthomas-ketchbrook/migrate)
 [![lifecycle](https://img.shields.io/badge/lifecycle-maturing-orange.svg)](https://www.tidyverse.org/lifecycle/#maturing)
+[![CRAN status](https://www.r-pkg.org/badges/version/migrate)](https://CRAN.R-project.org/package=migrate)
+[![metacran downloads](https://cranlogs.r-pkg.org/badges/migrate)](https://cran.r-project.org/package=migrate)
 <!-- badges: end -->
 
 The goal of migrate is to provide credit analysts with an easy set of tools for building *state migration matrices* (also known as *"state transition matrices"*). 
