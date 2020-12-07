@@ -5,3 +5,4 @@
 ^\.travis\.yml$
 ^Meta$
 ^data-raw$
+^tests$
