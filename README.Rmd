@@ -13,6 +13,8 @@ knitr::opts_chunk$set(
   fig.path = "man/figures/README-",
   out.width = "100%"
 )
+
+devtools::load_all()
 ```
 
 # migrate <img src='man/figures/logo.png' align="right" height="200" />
@@ -57,20 +59,39 @@ And the development version from [GitHub](https://github.com/) with:
 devtools::install_github("mthomas-ketchbrook/migrate")
 ```
 
+## Practical Usage
+
+{migrate} currently only handles transitions between exactly two (2) time points. Under the hood, {migrate} finds the earliest & latest dates in the given *date* variable, and filters out any observations where the *date* value does not match those two dates.
+
+If you are writing a SQL query to get data to be used with {migrate}, the query would likely look something like this:
+
+```{r, eval = FALSE}
+# -- Get the *State* status and *Value* for each ID, at two distinct dates
+
+# SELECT ID, Date, State, Value 
+# FROM my_database
+# WHERE Date IN ('2020-12-31', '2021-06-30')
+```
+
 ## Example
 
 First, load the package & the mock dataset (as a data frame) using `library()`
 
-```{r load}
+```{r load, eval = FALSE}
 library(migrate)
-data("mock_credit")
 ```
 
-We can get a look at the data using `dplyr::glimpse()`
+The package has a built-in mock dataset, which can be loaded into the environment like so:
 
-```{r glimpse, warning = FALSE, message = FALSE}
-library(dplyr)
-glimpse(mock_credit)
+```{r data, eval = FALSE}
+data("mock_credit")
+
+head(data)
+```
+
+```{r data_tbl, echo = FALSE}
+head(data) %>% 
+  knitr::kable()
 ```
 
 Note that an important feature of the dataset is that there are exactly two (2) unique values in the `date` column variable
