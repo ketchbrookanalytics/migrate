@@ -61,11 +61,11 @@ migrate <- function(data, id, date, state, metric = NULL, percent = TRUE,
 
   # Handle Deprecation Warnings
   # If deprecated `rating` argument is supplied...
-  if (!is.null(rating)) {
+  if (!missing(rating)) {
 
     # ... warn user that it is deprecated
     rlang::abort(
-      "argument `rating` is deprecated; please use `state` instead",
+      "`rating` argument is deprecated; please use `state` instead",
       call. = FALSE
     )
 
@@ -80,6 +80,20 @@ migrate <- function(data, id, date, state, metric = NULL, percent = TRUE,
         class(data)
       )
     )
+
+  }
+
+  # Ensure the supplied `percent` argument is logical
+  if (!is.logical(percent)) {
+
+    rlang::abort("`percent` argument must be logical TRUE/FALSE")
+
+  }
+
+  # Ensure the supplied `verbose` argument is logical
+  if (!is.logical(verbose)) {
+
+    rlang::abort("`verbose` argument must be logical TRUE/FALSE")
 
   }
 
@@ -173,9 +187,9 @@ migrate <- function(data, id, date, state, metric = NULL, percent = TRUE,
   if (num_dates != 2) {
 
     paste0(
-      "Error: Data must have exactly 2 unique values for `",
+      "There must be exactly 2 unique values in the `",
       date_name,
-      "`; ",
+      "` column variable; ",
       num_dates,
       " unique values were found"
     ) %>%
@@ -193,14 +207,14 @@ migrate <- function(data, id, date, state, metric = NULL, percent = TRUE,
     # Stop if the `metric` variable doesn't exist in the `data` data frame,
     if (!metric_name %in% colnames(data)) {
 
-      rlang::abort("`metric` argument must be a (unquoted) variable in `data`")
+      rlang::abort("`metric` argument must be an unquoted variable in `data`")
 
     }
 
     # Stop if the `metric` variable isn't numeric
     if (!is.numeric(dplyr::pull(data, {{ metric }}))) {
 
-      rlang::abort("`metric` argument must a numeric type variable in `data`")
+      rlang::abort("`metric` argument must be a numeric type variable in `data`")
 
     }
 
