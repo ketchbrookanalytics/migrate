@@ -65,7 +65,7 @@ migrate <- function(data, id, date, state, metric = NULL, percent = TRUE,
 
     # ... warn user that it is deprecated
     rlang::abort(
-      "argument `rating` is deprecated; please use `state` instead.",
+      "argument `rating` is deprecated; please use `state` instead",
       call. = FALSE
     )
 
@@ -133,7 +133,7 @@ migrate <- function(data, id, date, state, metric = NULL, percent = TRUE,
         "Please consider converting `",
         state_name,
         "` to an ordered factor before passing it to `migrate()` to ensure ",
-        "that the rank-ordering in the final matrix displays correctly."
+        "that the rank-ordering in the final matrix displays correctly"
       ) %>% rlang::warn()
 
     }
@@ -148,14 +148,14 @@ migrate <- function(data, id, date, state, metric = NULL, percent = TRUE,
     paste0(
       "Converting `",
       state_name,
-      "` to type `factor`."
+      "` to type `factor`"
     ) %>% rlang::warn()
 
     paste0(
       "To ensure that your output is ordered correctly, convert the `",
       state_name,
       "` column variable in your data frame to an ordered factor before ",
-      " passing to `migrate()`."
+      " passing to `migrate()`"
     ) %>% rlang::warn()
 
     data <- data %>%
@@ -177,7 +177,7 @@ migrate <- function(data, id, date, state, metric = NULL, percent = TRUE,
       date_name,
       "`; ",
       num_dates,
-      " unique values were found."
+      " unique values were found"
     ) %>%
       rlang::abort()
 
@@ -262,7 +262,8 @@ migrate <- function(data, id, date, state, metric = NULL, percent = TRUE,
     paste0(
       "Removing ",
       (nrow(data) - nrow(tidyr::drop_na(data))),
-      " observations due to missingness or ID's only existing at one `date` value"
+      " observations due to missingness or IDs only existing at one `date` ",
+      "value"
     ) %>%
       rlang::warn()
 
@@ -272,15 +273,17 @@ migrate <- function(data, id, date, state, metric = NULL, percent = TRUE,
     tidyr::drop_na()
 
   # Replace the date values in the column names with "start" and "end"
-  colnames(data) <- colnames(data) %>%
-    stringr::str_replace(
-      pattern = as.character(min_date),
-      replacement = "start"
-    ) %>%
-    stringr::str_replace(
-      pattern = as.character(max_date),
-      replacement = "end"
-    )
+  colnames(data) <- gsub(
+    pattern = as.character(min_date),
+    replacement = "start",
+    x = colnames(data)
+  )
+
+  colnames(data) <- gsub(
+    pattern = as.character(max_date),
+    replacement = "end",
+    x = colnames(data)
+  )
 
   # Quote the new column names for use in tidy evaluation
   state_start_name <- rlang::enquo(state) %>%
