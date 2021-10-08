@@ -7,12 +7,14 @@
 #'
 #' @param data A data frame or data frame extension (e.g., a tibble or
 #'   data.table) containing a minimum of three (3) column variables representing
-#'   a date, a credit risk state, and an ID identifying the credit facility (we
+#'   a time, a credit risk state, and an ID identifying the credit facility (we
 #'   would expect to see most unique values in this column variable appear twice
-#'   in the dataset; once at the first date and again at the second date, unless
-#'   the credit only existed at one of those two dates).
-#' @param date The column variable of type "Date" in the `data` data frame
-#'   argument that contains the two unique date values
+#'   in the dataset; once at the first unique `time` value and again at the
+#'   second unique `time` value, unless the ID only existed at one of those two
+#'   times).
+#' @param time The column variable of in the `data` data frame representing the
+#'   time point (e.g., a Date) of each observation; this column should contain
+#'   two unique values (migration from Time A to Time B)
 #' @param state The column variable of the `data` data frame argument that
 #'   contains the credit risk state values.
 #' @param id The column variable of the `data` data frame argument that contains
@@ -41,31 +43,41 @@
 #' # Return the percent migration of the number of credit facilities
 #' migrate(
 #'   data = mock_credit,
-#'   date = date,
-#'   state = risk_rating,
-#'   id = customer_id
+#'   id = customer_id,
+#'   time = date,
+#'   state = risk_rating
 #' )
 #'
 #' # Return the absolute migration in `principal_balance`
 #' migrate(
 #'   data = mock_credit,
-#'   date = date,
-#'   state = risk_rating,
 #'   id = customer_id,
+#'   time = date,
+#'   state = risk_rating,
 #'   metric = principal_balance,
 #'   percent = FALSE
 #' )
 #'
-migrate <- function(data, id, date, state, metric = NULL, percent = TRUE,
-                    verbose = TRUE, rating = NULL) {
+migrate <- function(data, id, time, state, metric = NULL, percent = TRUE,
+                    verbose = TRUE, rating = NULL, date = NULL) {
 
-  # Handle Deprecation Warnings
   # If deprecated `rating` argument is supplied...
   if (!missing(rating)) {
 
     # ... warn user that it is deprecated
     rlang::abort(
       "`rating` argument is deprecated; please use `state` instead",
+      call. = FALSE
+    )
+
+  }
+
+  # If deprecated `date` argument is supplied...
+  if (!missing(date)) {
+
+    # ... warn user that it is deprecated
+    rlang::abort(
+      "`date` argument is deprecated; please use `time` instead",
       call. = FALSE
     )
 
@@ -97,19 +109,6 @@ migrate <- function(data, id, date, state, metric = NULL, percent = TRUE,
 
   }
 
-  # Ensure supplied `date` argument is a "Date"-type column variable in `data`
-  is_date <- data %>%
-    dplyr::pull({{ date }}) %>%
-    inherits('Date')
-
-  if (!is_date) {
-
-    rlang::abort(
-      "`date` argument must be a \"Date\"-type column variable in `data`"
-    )
-
-  }
-
   # Coerce input data frame to a tibble
   data <- data %>%
     tibble::as_tibble()
@@ -118,7 +117,7 @@ migrate <- function(data, id, date, state, metric = NULL, percent = TRUE,
   id_name <- rlang::enquo(id) %>%
     rlang::as_label()
 
-  date_name <- rlang::enquo(date) %>%
+  time_name <- rlang::enquo(time) %>%
     rlang::as_label()
 
   state_name <- rlang::enquo(state) %>%
@@ -177,20 +176,20 @@ migrate <- function(data, id, date, state, metric = NULL, percent = TRUE,
 
   }
 
-  # Get the number of unique dates in the data
-  num_dates <- data %>%
-    dplyr::pull({{ date }}) %>%
+  # Capture the distinct `time` values, sorted ascending
+  times <- data %>%
+    dplyr::pull({{ time }}) %>%
     unique() %>%
-    length()
+    sort()
 
-  # Stop execution if there aren't exactly 2 unique dates in the data
-  if (num_dates != 2) {
+  # Stop execution if there aren't exactly 2 unique time values in the data
+  if (length(times) != 2) {
 
     paste0(
       "There must be exactly 2 unique values in the `",
-      date_name,
+      time_name,
       "` column variable; ",
-      num_dates,
+      length(times),
       " unique values were found"
     ) %>%
       rlang::abort()
@@ -233,50 +232,40 @@ migrate <- function(data, id, date, state, metric = NULL, percent = TRUE,
 
   }
 
-  # Capture the min date value
-  min_date <- data %>%
-    dplyr::pull({{ date }}) %>%
-    min()
-
-  # Capture the max date value
-  max_date <- data %>%
-    dplyr::pull({{ date }}) %>%
-    max()
-
   # Inform the user of the migration time period, unless `verbose = FALSE`
   if (verbose) {
 
     paste0(
       "=== Migrating from: `",
-      min_date,
-      "` --> ` ",
-      max_date,
+      times[1],
+      "` --> `",
+      times[2],
       "` ==="
     ) %>%
       rlang::inform()
 
   }
 
-  # Pivot the data from long to wide based upon the 'date' column variable
+  # Pivot the data from long to wide based upon the 'time' column variable
   data <- data %>%
     tidyr::pivot_wider(
       id_cols = {{ id }},
-      names_from = {{ date }},
+      names_from = {{ time }},
       values_from = c({{ state }}, {{ metric }})
     )
 
   # Remove any NA values across all columns; this will also remove observations
-  # that only appeared at one `date` value in the data frame; we have no way of
+  # that only appeared at one `time` value in the data frame; we have no way of
   # allocating such observations in a migration matrix since we either don't
   # know what state they're migrating *to* (in the case where it only appears at
-  # the earlier date) or *from* (in the case where it only appears at the later
-  # date), as `pivot_wider()` creates NA values for these cases
+  # the earlier time) or *from* (in the case where it only appears at the later
+  # time), as `pivot_wider()` creates NA values for these cases
   if (nrow(tidyr::drop_na(data)) < nrow(data)) {
 
     paste0(
-      "Removing ",
+      "Removed ",
       (nrow(data) - nrow(tidyr::drop_na(data))),
-      " observations due to missingness or IDs only existing at one `date` ",
+      " observations due to missingness or IDs only existing at one `time` ",
       "value"
     ) %>%
       rlang::warn()
@@ -286,15 +275,15 @@ migrate <- function(data, id, date, state, metric = NULL, percent = TRUE,
   data <- data %>%
     tidyr::drop_na()
 
-  # Replace the date values in the column names with "start" and "end"
+  # Replace the time values in the column names with "start" and "end"
   colnames(data) <- gsub(
-    pattern = as.character(min_date),
+    pattern = as.character(times[1]),
     replacement = "start",
     x = colnames(data)
   )
 
   colnames(data) <- gsub(
-    pattern = as.character(max_date),
+    pattern = as.character(times[2]),
     replacement = "end",
     x = colnames(data)
   )
