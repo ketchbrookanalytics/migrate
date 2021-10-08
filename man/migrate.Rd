@@ -6,38 +6,46 @@
 \usage{
 migrate(
   data,
-  date,
+  id,
+  time,
   state,
-  id = NULL,
   metric = NULL,
   percent = TRUE,
-  rating = NULL
+  verbose = TRUE,
+  rating = NULL,
+  date = NULL
 )
 }
 \arguments{
-\item{data}{A data frame or data frame extension (e.g., a tibble or data.table)
-containing a minimum of three (3) column variables representing a date, a credit
-risk state, and an ID identifying the credit facility (we would expect to see most
-unique values in this column variable appear twice in the dataset; once at the
-first date and again at the second date, unless the credit only existed at one of
-those two dates).}
+\item{data}{A data frame or data frame extension (e.g., a tibble or
+data.table) containing a minimum of three (3) column variables representing
+a time, a credit risk state, and an ID identifying the credit facility (we
+would expect to see most unique values in this column variable appear twice
+in the dataset; once at the first unique `time` value and again at the
+second unique `time` value, unless the ID only existed at one of those two
+times).}
 
-\item{date}{A symbol or string, representing the column variable of the `data` data
-frame argument that contains the two unique date values.}
+\item{id}{The column variable of the `data` data frame argument that contains
+the unique identifier to track where a particular credit facility migrated
+to/from. If left null, `migrate()` will attempt to use the first column
+variable from the data frame provided in the `data` argument.}
 
-\item{state}{A symbol or string, representing the column variable of the `data` data
-frame argument that contains the credit risk state values.}
+\item{time}{The column variable of in the `data` data frame representing the
+time point (e.g., a Date) of each observation; this column should contain
+two unique values (migration from Time A to Time B)}
 
-\item{id}{(Optional) a symbol or string, representing the column variable of the
-`data` data frame argument that contains the unique identifier to track where a
-particular credit facility migrated to/from. If left null, `migrate()` will attempt
-to use the first column variable from the data frame provided in the `data` argument.}
+\item{state}{The column variable of the `data` data frame argument that
+contains the credit risk state values.}
 
-\item{metric}{(Optional) a symbol or string, representing the column variable of the
-`data` data frame argument that contains the continuous metric values.}
+\item{metric}{(Optional) The column variable of type "numeric" in the `data`
+data frame argument that contains the continuous metric values to weight
+the state migration by}
 
-\item{percent}{If `FALSE`, will calculate the migration on an absolute basis (rather
-than a percentage basis, which is the default).}
+\item{percent}{If `FALSE`, will calculate the migration on an absolute basis
+(rather than a percentage basis, which is the default)}
+
+\item{verbose}{If `TRUE`, the function returns an informational message about
+the transition period}
 
 \item{rating}{Deprecated; please use `state` instead.}
 }
@@ -47,25 +55,25 @@ combinations of starting & ending credit risk states and the calculated migratio
 observed during the period.
 }
 \description{
-`migrate()` summarizes the transition amount (or percentage) of a continuous variable
-from each beginning credit risk state category to each ending credit risk state,
-given a data frame input.
+`migrate()` summarizes the transition amount (or percentage) of a continuous
+variable from each beginning credit risk state category to each ending credit
+risk state, given a data frame input.
 }
 \examples{
 # Return the percent migration of the number of credit facilities
 migrate(
   data = mock_credit,
-  date = date,
-  state = risk_rating,
-  id = customer_id
+  id = customer_id,
+  time = date,
+  state = risk_rating
 )
 
 # Return the absolute migration in `principal_balance`
 migrate(
   data = mock_credit,
-  date = date,
-  state = risk_rating,
   id = customer_id,
+  time = date,
+  state = risk_rating,
   metric = principal_balance,
   percent = FALSE
 )
