@@ -5,7 +5,7 @@
 
 raw_ct <- migrate(
   data = mock_credit,
-  date = date,
+  time = date,
   state = risk_rating,
   id = customer_id,
   verbose = FALSE
@@ -13,7 +13,7 @@ raw_ct <- migrate(
 
 raw_wtd <- migrate(
   data = mock_credit,
-  date = date,
+  time = date,
   state = risk_rating,
   id = customer_id,
   metric = principal_balance,
@@ -72,7 +72,7 @@ test_that("migrate() returns a three-column dataframe", {
   expect_true(
     migrate(
       data = mock_credit,
-      date = date,
+      time = date,
       state = risk_rating,
       id = customer_id,
       percent = FALSE,
@@ -83,7 +83,7 @@ test_that("migrate() returns a three-column dataframe", {
   expect_true(
     migrate(
       data = mock_credit,
-      date = date,
+      time = date,
       state = risk_rating,
       id = customer_id,
       metric = principal_balance,
@@ -100,7 +100,7 @@ test_that("migrate() expects a data frame in `data` argument", {
   expect_error(
     migrate(
       data = c(1:10),
-      date = date,
+      time = date,
       state = risk_rating,
       id = customer_id
     ),
@@ -116,7 +116,7 @@ test_that("migrate() is verbose by default", {
   expect_message(
     migrate(
       data = mock_credit,
-      date = date,
+      time = date,
       state = risk_rating,
       id = customer_id
     )
@@ -126,7 +126,7 @@ test_that("migrate() is verbose by default", {
   expect_silent(
     migrate(
       data = mock_credit,
-      date = date,
+      time = date,
       state = risk_rating,
       id = customer_id,
       verbose = FALSE
@@ -156,15 +156,15 @@ test_that("migrate() outputs row-wise sums of 1 when `percent = TRUE`", {
 
 test_that("migrate() outputs starting sums when `percent = FALSE`", {
 
-  min_date <- min(mock_credit$date)
+  min_time <- min(mock_credit$date)
 
   # the total 'count' output should equal the input number of observations at
-  # the earliest date (assuming each ID has exactly 2 observations in the data)
+  # the earliest time (assuming each ID has exactly 2 observations in the data)
   expect_equal(
-    mock_credit %>% dplyr::filter(date == min_date) %>% nrow(),
+    mock_credit %>% dplyr::filter(date == min_time) %>% nrow(),
     migrate(
       data = mock_credit,
-      date = date,
+      time = date,
       state = risk_rating,
       id = customer_id,
       percent = FALSE,
@@ -178,13 +178,13 @@ test_that("migrate() outputs starting sums when `percent = FALSE`", {
   expect_equal(
 
     mock_credit %>%
-      dplyr::filter(date == min_date) %>%
+      dplyr::filter(date == min_time) %>%
       dplyr::pull(principal_balance) %>%
       sum(),
 
     migrate(
       data = mock_credit,
-      date = date,
+      time = date,
       state = risk_rating,
       id = customer_id,
       metric = principal_balance,
@@ -204,26 +204,11 @@ test_that("migrate() throws an error if deprecated `rating` argument is used", {
   expect_error(
     migrate(
       data = mock_credit,
-      date = date,
+      time = date,
       rating = risk_rating,   # use `rating` instead of `state`
       id = customer_id
     ),
     regexp = "`rating` argument is deprecated"
-  )
-
-})
-
-
-test_that("migrate() throws an error if `date` argument is not type \"Date\"", {
-
-  expect_error(
-    migrate(
-      data = mock_credit,
-      date = customer_id,   # using a "character"-type column for `date`
-      state = risk_rating,
-      id = customer_id
-    ),
-    regexp = "`date` argument must be a \"Date\"-type"
   )
 
 })
@@ -236,7 +221,7 @@ test_that("migrate() throws a warning if `state` variable is not an ordered fact
     mock_credit %>%
       dplyr::mutate(risk_rating = factor(risk_rating, ordered = FALSE)) %>%
       migrate(
-        date = date,
+        time = date,
         state = risk_rating,
         id = customer_id,
         verbose = FALSE
@@ -249,7 +234,7 @@ test_that("migrate() throws a warning if `state` variable is not an ordered fact
     mock_credit %>%
       dplyr::mutate(risk_rating = as.character(risk_rating)) %>%
       migrate(
-        date = date,
+        time = date,
         state = risk_rating,
         id = customer_id,
         verbose = FALSE
@@ -260,20 +245,40 @@ test_that("migrate() throws a warning if `state` variable is not an ordered fact
 })
 
 
-test_that("migrate() throws an error if there aren't exactly 2 unique dates in the data", {
+test_that("migrate() expects exactly 2 unique time values for each `id` value", {
 
+  # error if > 2 distinct `time` values found
   expect_error(
     mock_credit %>%
       # add an extra observation with a different date
       dplyr::bind_rows(
-        mock_credit %>% dplyr::slice(1) %>% dplyr::mutate(date = as.Date("1900-01-01"))
+        mock_credit %>%
+          dplyr::slice(1) %>%
+          dplyr::mutate(date = as.Date("1900-01-01"))
       ) %>%
       migrate(
-        date = date,
+        time = date,
         state = risk_rating,
         id = customer_id
       ),
-    regexp = "There must be exactly 2 unique values in the `date` column"
+    regexp = "There must be exactly 2 unique values"
+  )
+
+  # randomly choose an integer representing the number of observations to remove
+  # from the tail of the data frame
+  rows_to_omit <- runif(1, min = 1, max = 10) %>% round(0)
+
+  expect_warning(
+    migrate(
+      data = mock_credit %>% dplyr::slice(-(1:rows_to_omit)),   # remove rows
+      time = date,
+      state = risk_rating,
+      id = customer_id,
+      metric = principal_balance,
+      percent = FALSE,
+      verbose = FALSE
+    ),
+    regexp = paste0("Removed ", rows_to_omit, " observations")
   )
 
 })
@@ -284,7 +289,7 @@ test_that("migrate() throws an error if `metric` argument is supplied incorrectl
   expect_error(
     migrate(
       data = mock_credit,
-      date = date,
+      time = date,
       state = risk_rating,
       id = customer_id,
       metric = var_not_in_df,
@@ -296,7 +301,7 @@ test_that("migrate() throws an error if `metric` argument is supplied incorrectl
   expect_error(
     migrate(
       data = mock_credit,
-      date = date,
+      time = date,
       state = risk_rating,
       id = customer_id,
       metric = "principal_balance",
@@ -314,7 +319,7 @@ test_that("migrate() throws an error if `metric` argument is not numeric column"
     mock_credit %>%
       dplyr::mutate(principal_balance = as.character(principal_balance)) %>%
       migrate(
-        date = date,
+        time = date,
         state = risk_rating,
         id = customer_id,
         metric = principal_balance,
@@ -343,7 +348,7 @@ test_that("migrate() correctly names third column based upon `metric` argument",
     colnames(
       migrate(
         data = mock_credit,
-        date = date,
+        time = date,
         state = risk_rating,
         id = customer_id,
         percent = FALSE,
@@ -357,7 +362,7 @@ test_that("migrate() correctly names third column based upon `metric` argument",
     colnames(
       migrate(
         data = mock_credit,
-        date = date,
+        time = date,
         state = risk_rating,
         id = customer_id,
         metric = principal_balance,
@@ -366,28 +371,6 @@ test_that("migrate() correctly names third column based upon `metric` argument",
       )
     )[3],
     "principal_balance"
-  )
-
-})
-
-
-test_that("migrate() throws a warning if any ID values only exist once", {
-
-  # randomly choose an integer representing the number of observations to remove
-  # from the tail of the data frame
-  rows_to_omit <- runif(1, min = 1, max = 10) %>% round(0)
-
-  expect_warning(
-    migrate(
-      data = mock_credit %>% dplyr::slice(-(1:rows_to_omit)),   # remove rows
-      date = date,
-      state = risk_rating,
-      id = customer_id,
-      metric = principal_balance,
-      percent = FALSE,
-      verbose = FALSE
-    ),
-    regexp = paste0("Removing ", rows_to_omit, " observations")
   )
 
 })
