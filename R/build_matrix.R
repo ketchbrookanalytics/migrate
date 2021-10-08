@@ -65,6 +65,18 @@
 build_matrix <- function(data, state_start = NULL, state_end = NULL,
                          metric = NULL) {
 
+  # Make sure the 'data' argument is a valid data frame
+  if (!is.data.frame(data)) {
+
+    rlang::abort(
+      paste0(
+        "`data` argument must be a valid data frame, not an object of type:",
+        class(data)
+      )
+    )
+
+  }
+
   # Guess the `state_start` column if not specified in args
   if (missing(state_start)) {
 
