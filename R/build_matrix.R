@@ -2,22 +2,24 @@
 #'
 #' @description
 #' `build_matrix()` creates a credit migration (i.e., "transition") matrix from
-#'   summarized data representing each credit risk state & a continuous metric at
-#'   two distinct points in time.
+#'   summarized data representing each credit risk state & a continuous metric
+#'   at two distinct points in time.
 #'
-#' @param data A data frame or data frame extension (e.g., a tibble or data.table)
-#'   containing a minimum of three (3) column variables representing a starting
-#'   credit risk state, an ending credit risk state, and a metric containing
-#'   values representing the movement (i.e., "transition) in that metric between
-#'   the starting credit risk state point in time and the ending credit risk
-#'   state point in time. This style of data frame is output by the `migrate()`
-#'   function within this package.
+#' @param data A data frame or data frame extension (e.g., a tibble or
+#'   data.table) containing a minimum of three (3) column variables representing
+#'   a starting credit risk state, an ending credit risk state, and a metric
+#'   containing values representing the movement (i.e., "transition) in that
+#'   metric between the starting credit risk state point in time and the ending
+#'   credit risk state point in time. This style of data frame is output by the
+#'   `migrate()` function within this package.
 #' @param state_start (Optional) A symbol or string, representing the column
-#'   variable of the `data` data frame argument that contains the starting credit
-#'   risk state values. If left null, function will attempt to find it for you.
+#'   variable of the `data` data frame argument that contains the starting
+#'   credit risk state values. If left null, function will attempt to find it
+#'   for you.
 #' @param state_end (Optional) A symbol or string, representing the column
-#'   variable of the `data` data frame argument that contains the starting credit
-#'   risk state values. If left null, function will attempt to find it for you.
+#'   variable of the `data` data frame argument that contains the starting
+#'   credit risk state values. If left null, function will attempt to find it
+#'   for you.
 #' @param metric (Optional) A symbol or string, representing the column variable
 #'   of the `data` data frame argument that contains the metric for which the
 #'   grouped difference in value between the starting credit risk state period
@@ -39,7 +41,7 @@
 #' # `state_end` and `metric`
 #' mock_credit %>%
 #'   migrate(
-#'     date = date,
+#'     time = date,
 #'     state = risk_rating,
 #'     id = customer_id,
 #'     metric = principal_balance
@@ -50,9 +52,9 @@
 #' # `metric`
 #' mock_credit %>%
 #'   migrate(
-#'     date = date,
-#'     state = risk_rating,
 #'     id = customer_id,
+#'     time = date,
+#'     state = risk_rating,
 #'     percent = FALSE
 #'   ) %>%
 #'   build_matrix(
