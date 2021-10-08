@@ -1,7 +1,7 @@
 Package: migrate
 Type: Package
 Title: Create Credit State Migration (Transition) Matrices
-Version: 0.3.1
+Version: 0.4.0
 Authors@R: 
     c(person(given = "Michael", 
              family = "Thomas", 
@@ -30,7 +30,7 @@ Suggests:
 Depends: 
     R (>= 3.1)
 Imports: 
-    dplyr (>= 1.0.2), 
+    dplyr (>= 1.0.7), 
     tidyr (>= 1.1.0), 
     tibble (>= 3.0.1), 
     rlang, 
