@@ -60,49 +60,55 @@
 #'     state_end = risk_rating_end,
 #'     metric = count
 #'   )
-build_matrix <- function(data, state_start = NULL, state_end = NULL, metric = NULL) {
+build_matrix <- function(data, state_start = NULL, state_end = NULL,
+                         metric = NULL) {
 
   # Guess the `state_start` column if not specified in args
   if (missing(state_start)) {
 
-    # Capture the columns in the `data` dataframe that are type `factor` and the phrase
-    # "start" is in the column name
-    state_start_sym <- data %>%
+    # Capture the columns in the `data` dataframe that are type `factor` and the
+    # phrase "start" is in the column name
+    state_start_col <- data %>%
       dplyr::select(where(is.factor) & contains("start"))
 
-    # If there are multiple columns matching the above criteria, stop evaluation and
-    # return error message
-    if (ncol(state_start_sym) > 1) {
+    # Ensure there is exactly 1 column in `state_start_col`
+    if (ncol(state_start_col) > 1) {
 
-      stop("Multiple columns of type `factor` with the phrase \'start\' in the column variable name were found")
-
-    }
-
-    # If there are no columns matching the above criteria, stop evaluation and return
-    # error message
-    if (ncol(state_start_sym) == 0) {
-
-      stop("No columns of type `factor` with the phrase \'start\' in the column variable name were found")
+      paste0(
+        "Multiple columns of type `factor` with the phrase \"start\" in the ",
+        "column variable name were found in `data`"
+      ) %>%
+        rlang::abort()
 
     }
 
-    # If exactly 1 column of type `factor` with the phrase 'start' in the
-    # column name was found, use it as the `state_start_sym` after
-    # printing a message to inform user
-    state_start_sym <- state_start_sym %>%
-      colnames()
+    if (ncol(state_start_col) == 0) {
 
-    message(
-      cat("Using ", crayon::blue(state_start_sym), " as the \'state_start\' column variable")
-    )
+      paste0(
+        "No columns of type `factor` with the phrase \"start\" in the column ",
+        "variable name were found"
+      ) %>%
+        rlang::abort()
 
-    state_start_sym <- state_start_sym %>%
-      dplyr::sym()
+    }
+
+    # If exactly 1 column of type `factor` with the phrase "start" in the column
+    # name was found, use it as the `state_start_sym`
+    paste0(
+      "Using `",
+      colnames(state_start_col),
+      "` as the \'state_start\' column variable"
+    ) %>%
+      rlang::inform()
+
+    state_start_sym <- colnames(state_start_col) %>%
+      rlang::sym()
 
   } else {
 
-    # Set the quoted `state_start_sym` using the user's input to the function
-    state_start_sym <- dplyr::enquo(state_start)
+    # If `state_start` argument was supplied, quote it for consistency with
+    # object name above
+    state_start_sym <- rlang::enquo(state_start)
 
   }
 
@@ -110,44 +116,49 @@ build_matrix <- function(data, state_start = NULL, state_end = NULL, metric = NU
   # Guess the `state_end` column if not specified in args
   if (missing(state_end)) {
 
-    # Capture the columns in the `data` dataframe that are type `factor` and the phrase
-    # "end" is in the column name
-    state_end_sym <- data %>%
+    # Capture the columns in the `data` data frame that are type `factor` and
+    # the phrase "end" is in the column name
+    state_end_col <- data %>%
       dplyr::select(where(is.factor) & contains("end"))
 
-    # If there are multiple columns matching the above criteria, stop evaluation and
-    # return error message
-    if (ncol(state_end_sym) > 1) {
+    # Ensure there is exactly 1 column in `state_end_col`
+    if (ncol(state_end_col) > 1) {
 
-      stop("Multiple columns of type `factor` with the phrase \'end\' in the column variable name were found")
-
-    }
-
-    # If there are no columns matching the above criteria, stop evaluation and return
-    # error message
-    if (ncol(state_end_sym) == 0) {
-
-      stop("No columns of type `factor` with the phrase \'end\' in the column variable name were found")
+      paste0(
+        "Multiple columns of type `factor` with the phrase \"end\" in the ",
+        "column variable name were found in `data`"
+      ) %>%
+        rlang::abort()
 
     }
 
-    # If exactly 1 column of type `factor` with the phrase 'end' in the
-    # column name was found, use it as the `state_end_sym` after
-    # printing a message to inform user
-    state_end_sym <- state_end_sym %>%
-      colnames()
+    if (ncol(state_end_col) == 0) {
 
-    message(
-      cat("Using ", crayon::blue(state_end_sym), " as the \'state_end\' column variable")
-    )
+      paste0(
+        "No columns of type `factor` with the phrase \"end\" in the column ",
+        "variable name were found"
+      ) %>%
+        rlang::abort()
 
-    state_end_sym <- state_end_sym %>%
-      dplyr::sym()
+    }
+
+    # If exactly 1 column of type `factor` with the phrase "end" in the column
+    # name was found, use it as the `state_end_sym`
+    paste0(
+      "Using `",
+      colnames(state_end_col),
+      "` as the \'state_end\' column variable"
+    ) %>%
+      rlang::inform()
+
+    state_end_sym <- colnames(state_end_col) %>%
+      rlang::sym()
 
   } else {
 
-    # Set the quoted `state_end_sym` using the user's input to the function
-    state_end_sym <- dplyr::enquo(state_end)
+    # If `state_end` argument was supplied, quote it for consistency with
+    # object name above
+    state_end_sym <- rlang::enquo(state_end)
 
   }
 
@@ -155,60 +166,58 @@ build_matrix <- function(data, state_start = NULL, state_end = NULL, metric = NU
   # Guess the `metric` column if not specified in args
   if (missing(metric)) {
 
-    # Capture the columns in the `data` dataframe that are type `numeric`
-    metric_sym <- data %>%
+    # Capture the columns in the `data` data frame that are type `numeric`
+    metric_col <- data %>%
       dplyr::select(where(is.numeric))
 
-    # If there are multiple columns matching the above criteria, stop evaluation and
-    # return error message
-    if (ncol(metric_sym) > 1) {
+    # Throw error if there are multiple columns matching the above criteria
+    if (ncol(metric_col) > 1) {
 
-      stop("Multiple columns of type `numeric` were found")
-
-    }
-
-    # If there are no columns matching the above criteria, stop evaluation and return
-    # error message
-    if (ncol(metric_sym) == 0) {
-
-      stop("No columns of type `numeric` were found")
+        rlang::abort("Multiple columns of type `numeric` were found in `data`")
 
     }
 
-    # If exactly 1 column of type `numeric`was found, use it as the `metric_sym` after
-    # printing a message to inform user
-    metric_sym <- metric_sym %>%
-      colnames()
+    # Throw error if there are no columns matching the above criteria
+    if (ncol(metric_col) == 0) {
 
-    message(
-      cat("Using ", crayon::blue(metric_sym), " as the \'metric\' column variable")
-    )
+      rlang::abort("No columns of type `numeric` were found in `data`")
 
-    metric_sym <- metric_sym %>%
-      dplyr::sym()
+    }
+
+    # If exactly 1 column of type `numeric`was found, use it as the `metric_sym`
+    paste0(
+      "Using `",
+      colnames(metric_col),
+      "` as the \'metric\' column variable"
+    ) %>%
+      rlang::inform()
+
+    metric_sym <- colnames(metric_col) %>%
+      rlang::sym()
 
   } else {
 
-    # Set the quoted `metric_sym` using the user's input to the function
-    metric_sym <- dplyr::enquo(metric)
+    # If `state_end` argument was supplied, quote it for consistency with
+    # object name above
+    metric_sym <- rlang::enquo(metric)
 
   }
 
   # Capture the row names for the matrix
   row_names <- data %>%
-    dplyr::pull(!! state_start_sym) %>%
+    dplyr::pull({{ state_start_sym }}) %>%
     unique() %>%
     sort()
 
   # Capture the column names for the matrix
   col_names <- data %>%
-    dplyr::pull(!! state_end_sym) %>%
+    dplyr::pull({{ state_end_sym }}) %>%
     unique() %>%
     sort()
 
   # Capture the values to fill in the matrix with
   vals <- data %>%
-    dplyr::pull(!! metric_sym)
+    dplyr::pull({{ metric_sym }})
 
   # Replace any infinite values with NA values
   vals <- ifelse(is.infinite(vals), NA, vals)
