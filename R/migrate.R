@@ -29,13 +29,14 @@
 #' @param verbose If `TRUE`, the function returns an informational message about
 #'   the transition period
 #' @param rating Deprecated; please use `state` instead.
+#' @param date Deprecated; please use `time` instead.
 #'
 #' @return
 #' A data frame containing three (3) column variables representing the unique
 #' combinations of starting & ending credit risk states and the calculated migration
 #' observed during the period.
 #'
-#' @importFrom rlang :=
+#' @importFrom rlang := .data
 #'
 #' @export
 #'
@@ -307,7 +308,7 @@ migrate <- function(data, id, time, state, metric = NULL, percent = TRUE,
   data <- data %>%
     dplyr::group_by(
       dplyr::across(
-        tidyselect::all_of(
+        dplyr::all_of(
           c(state_start_name, state_end_name)
         )
       ),
