@@ -48,6 +48,8 @@ the state migration by}
 the transition period}
 
 \item{rating}{Deprecated; please use `state` instead.}
+
+\item{date}{Deprecated; please use `time` instead.}
 }
 \value{
 A data frame containing three (3) column variables representing the unique
