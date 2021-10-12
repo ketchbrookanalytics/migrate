@@ -14,6 +14,8 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+
+library(migrate)
 ```
 
 ## Using `migrate`
@@ -36,7 +38,7 @@ library(migrate)
 
 The package has a built-in mock dataset, which can be loaded into the environment like so:
 
-```{r data, eval = FALSE}
+```{r data, results = 'hide'}
 data("mock_credit")
 
 head(mock_credit[order(mock_credit$customer_id), ])   # sort by 'customer_id'
