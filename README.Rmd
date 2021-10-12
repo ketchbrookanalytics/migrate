@@ -13,15 +13,17 @@ knitr::opts_chunk$set(
   fig.path = "man/figures/README-",
   out.width = "100%"
 )
+
+devtools::load_all()
 ```
 
 # migrate <img src='man/figures/logo.png' align="right" height="200" />
 
 <!-- badges: start -->
-[![Travis build status](https://travis-ci.com/mthomas-ketchbrook/migrate.svg?branch=master)](https://travis-ci.com/mthomas-ketchbrook/migrate)
 [![lifecycle](https://img.shields.io/badge/lifecycle-maturing-orange.svg)](https://www.tidyverse.org/lifecycle/#maturing)
 [![CRAN status](https://www.r-pkg.org/badges/version/migrate)](https://CRAN.R-project.org/package=migrate)
 [![metacran downloads](https://cranlogs.r-pkg.org/badges/migrate)](https://cran.r-project.org/package=migrate)
+[![R-CMD-check](https://github.com/mthomas-ketchbrook/migrate/workflows/R-CMD-check/badge.svg)](https://github.com/mthomas-ketchbrook/migrate/actions)
 <!-- badges: end -->
 
 The goal of migrate is to provide credit analysts with an easy set of tools for building *state migration matrices* (also known as *"state transition matrices"*). 
@@ -57,23 +59,42 @@ And the development version from [GitHub](https://github.com/) with:
 devtools::install_github("mthomas-ketchbrook/migrate")
 ```
 
+## Practical Usage
+
+{migrate} currently only handles transitions between exactly two (2) time points. Under the hood, {migrate} finds the earliest & latest dates in the given *time* variable, and filters out any observations where the *time* value does not match those two dates.
+
+If you are writing a SQL query to get data to be used with {migrate}, the query would likely look something like this:
+
+```{r, eval = FALSE}
+# -- Get the *State* risk status and *Balance* dollar amount for each ID, at two distinct dates
+
+# SELECT ID, Date, State, Balance 
+# FROM my_database
+# WHERE Date IN ('2020-12-31', '2021-06-30')
+```
+
 ## Example
 
 First, load the package & the mock dataset (as a data frame) using `library()`
 
-```{r load}
+```{r load, eval = FALSE}
 library(migrate)
+```
+
+The package has a built-in mock dataset, which can be loaded into the environment like so:
+
+```{r data, eval = FALSE}
 data("mock_credit")
+
+head(mock_credit[order(mock_credit$customer_id), ])   # sort by 'customer_id'
 ```
 
-We can get a look at the data using `dplyr::glimpse()`
-
-```{r glimpse, warning = FALSE, message = FALSE}
-library(dplyr)
-glimpse(mock_credit)
+```{r data_tbl, echo = FALSE}
+head(mock_credit[order(mock_credit$customer_id), ]) %>% 
+  knitr::kable(row.names = FALSE)
 ```
 
-Note that an important feature of the dataset is that there are exactly two (2) unique values in the `date` column variable
+Note that an important feature of the `mock_credit` dataset is that there are exactly two (2) unique values in the `date` column variable; if the `time` argument passed to `migrate` has more than two (2) unique values, the function will throw an error.
 
 ```{r dates}
 unique(mock_credit$date)
@@ -84,9 +105,9 @@ To summarize the migration within the data, use the `migrate()` function
 ```{r migrate}
 migrated_df <- migrate(
   data = mock_credit, 
-  date = date, 
+  id = customer_id, 
+  time = date, 
   state = risk_rating, 
-  id = customer_id
 )
 
 head(migrated_df)
@@ -101,11 +122,16 @@ Or, to do it all in one shot, use the `%>%`
 ```{r pipe} 
 mock_credit %>% 
   migrate(
-    date = date, 
-    state = risk_rating, 
     id = customer_id, 
+    time = date, 
+    state = risk_rating, 
     metric = principal_balance, 
-    percent = FALSE
+    percent = FALSE, 
+    verbose = FALSE
   ) %>% 
-  build_matrix()
+  build_matrix(
+    state_start = risk_rating_start, 
+    state_end = risk_rating_end, 
+    metric = principal_balance
+  )
 ```
