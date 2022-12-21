@@ -23,7 +23,7 @@ check_args <- function(data, percent, fill_state, verbose) {
 
   }
 
-  # Ensure the supplied `fill_state` argument is logical
+  # Ensure the supplied `fill_state` argument is coercible to factor type
   if (!is.null(fill_state)) {
 
     bad_length <- length(fill_state) != 1L
@@ -131,59 +131,6 @@ check_times <- function(times, time_name) {
 
 
 
-check_metric <- function(data, metric, percent) {
-
-  browser()
-
-  # If the `metric` argument is supplied...
-  if (!is.null(metric)) {
-
-    # Capture the name of the `metric` argument as a character string
-    metric_name <- rlang::enquo(metric) %>%
-      rlang::as_label()
-
-    # Stop if the `metric` variable doesn't exist in the `data` data frame,
-    if (!metric_name %in% colnames(data)) {
-
-      rlang::abort("`metric` argument must be an unquoted variable in `data`")
-
-    }
-
-    # Stop if the `metric` variable isn't numeric
-    if (!is.numeric(data[[metric_name]])) {
-
-      rlang::abort("`metric` argument must be a numeric type variable in `data`")
-
-    }
-
-    metric_fill <- 0
-
-    # ...if the `metric` argument is not supplied
-  } else {
-
-    # Set the `metric_name` character string based upon if `percent == TRUE`
-    metric_name <- ifelse(percent, "prop", "count")
-
-    # Add a new column to the `data` data frame, where every value is 1
-    # This will help us show the transition on a count or percentage basis later
-    data[[metric_name]] <- 1L
-
-    metric_fill <- 1L
-
-  }
-
-  return(
-    list(
-      data = data,
-      metric_name = metric_name,
-      metric_fill = metric_fill
-    )
-  )
-
-}
-
-
-
 time_message <- function(times) {
 
   paste0(
@@ -194,6 +141,93 @@ time_message <- function(times) {
     "` ==="
   ) %>%
     rlang::inform()
+
+}
+
+
+
+# Add the 'fill_state' argument value to the factor levels of the 'state' column
+# variable
+add_state_fill_factor <- function(data, state, state_name) {
+
+  data %>%
+    dplyr::mutate(
+      "{state_name}" := factor(
+        x = {{ state }},
+        levels = c(
+          levels(data[[state_name]]),
+          as.character(fill_state)
+        ),
+        ordered = TRUE
+      )
+    )
+
+}
+
+
+
+# Remove any NA values across all columns; this will drop observations found
+# at only a single time point, unless the `fill_state` argument is *not* NULL
+drop_missing_timepoints <- function(data) {
+
+  out <- data %>%
+    tidyr::drop_na()
+
+  paste0(
+    "Removed ",
+    (nrow(data) - nrow(out)),
+    " observations due to missingness or IDs only existing at one `time` ",
+    "value"
+  ) %>%
+    rlang::warn()
+
+  return(out)
+
+}
+
+
+
+# Group the data by the state variables, preserving all factor levels, and
+# summarize by taking the sum of the starting `metric` value for each group
+migrate_count <- function(data,
+                          state_start_name, state_end_name,
+                          metric_name, metric_start_name) {
+
+  data %>%
+    dplyr::group_by(
+      dplyr::across(
+        dplyr::all_of(
+          c(state_start_name, state_end_name)
+        )
+      ),
+      .drop = FALSE
+    ) %>%
+    dplyr::summarise(
+      "{metric_name}" := sum(.data[[metric_start_name]]),
+      .groups = "drop"
+    )
+
+}
+
+
+# Compute the % of the metric column variable value for starting state class
+# that ended up in the ending state class
+migrate_percent <- function(data, state_start_name, metric_name) {
+
+  data %>%
+    dplyr::group_by(.data[[state_start_name]]) %>%
+    dplyr::mutate(
+      "{metric_name}" := .data[[metric_name]] / sum(.data[[metric_name]])
+    ) %>%
+    dplyr::ungroup() %>%
+    # Replace `NaN` values with `Inf` so that they are not dropped with `drop_na()`
+    dplyr::mutate(
+      "{metric_name}" := ifelse(
+        is.nan(.data[[metric_name]]),
+        Inf,
+        .data[[metric_name]]
+      )
+    )
 
 }
 
@@ -266,18 +300,12 @@ migrate <- function(data, id, time, state,
   check_args(data, percent, fill_state, verbose)
 
   # Coerce input data frame to a tibble
-  data <- data %>%
-    tibble::as_tibble()
+  data <- tibble::as_tibble(data)
 
   # Capture supplied  variable arguments as strings
-  id_name <- rlang::enquo(id) %>%
-    rlang::as_label()
-
-  time_name <- rlang::enquo(time) %>%
-    rlang::as_label()
-
-  state_name <- rlang::enquo(state) %>%
-    rlang::as_label()
+  id_name <- rlang::enquo(id) %>% rlang::as_label()
+  time_name <- rlang::enquo(time) %>% rlang::as_label()
+  state_name <- rlang::enquo(state) %>% rlang::as_label()
 
   # Coerce the `state` column variable to type "factor" (if necessary)
   data <- coerce_factor(data, state_name)
@@ -336,17 +364,11 @@ migrate <- function(data, id, time, state,
     # ... add the fill state to the factor levels (if it doesn't already exist)
     if (!fill_state %in% levels(data[[state_name]])) {
 
-      data <- data %>%
-        dplyr::mutate(
-          "{state_name}" := factor(
-            x = {{ state }},
-            levels = c(
-              levels(data[[state_name]]),
-              as.character(fill_state)
-            ),
-            ordered = TRUE
-          )
-        )
+      data <- add_state_fill_factor(
+        data = data,
+        state = state,
+        state_name = state_name
+      )
 
     }
 
@@ -369,25 +391,16 @@ migrate <- function(data, id, time, state,
       values_from = dplyr::all_of(
         c(state_name, metric_name)
       ),
-      values_fill = fill_state
+      values_fill = fill_state   # this won't do anything if `fill_state = NULL`
     )
 
   # Remove any NA values across all columns; this will drop observations found
-  # at only a single time point, unless the `fill_state` argument is not NULL
+  # at only a single time point, unless the `fill_state` argument is *not* NULL
   if (nrow(tidyr::drop_na(data)) < nrow(data)) {
 
-    paste0(
-      "Removed ",
-      (nrow(data) - nrow(tidyr::drop_na(data))),
-      " observations due to missingness or IDs only existing at one `time` ",
-      "value"
-    ) %>%
-      rlang::warn()
+    data <- drop_missing_timepoints(data)
 
   }
-
-  data <- data %>%
-    tidyr::drop_na()
 
   # Replace the time values in the column names with "start" and "end"
   colnames(data) <- gsub(
@@ -404,49 +417,25 @@ migrate <- function(data, id, time, state,
 
   # Quote the new column names for use in tidy evaluation
   state_start_name <- paste0(state_name, "_start")
-
   state_end_name <- paste0(state_name, "_end")
-
   metric_start_name <- paste0(metric_name, "_start")
 
-  # browser()
-
-  # Group the data by the state variables, preserving all factor levels, and
-  # summarize by taking the sum of the starting `metric` value for each
-  # group
-  data <- data %>%
-    dplyr::group_by(
-      dplyr::across(
-        dplyr::all_of(
-          c(state_start_name, state_end_name)
-        )
-      ),
-      .drop = FALSE
-    ) %>%
-    dplyr::summarise(
-      "{metric_name}" := sum(.data[[metric_start_name]]),
-      .groups = "drop"
-    )
+  data <- migrate_count(
+    data = data,
+    state_start_name = state_start_name,
+    state_end_name = state_end_name,
+    metric_name = metric_name,
+    metric_start_name = metric_start_name
+  )
 
   # If the user set `percent = TRUE` in function argument...
   if (percent) {
 
-    # ...compute the % of the metric column variable value for starting state
-    # class that ended up in the ending state class
-    data %>%
-      dplyr::group_by(.data[[state_start_name]]) %>%
-      dplyr::mutate(
-        "{metric_name}" := .data[[metric_name]] / sum(.data[[metric_name]])
-      ) %>%
-      dplyr::ungroup() %>%
-      # Replace `NaN` values with `Inf` so that they are not dropped with `drop_na()`
-      dplyr::mutate(
-        "{metric_name}" := ifelse(
-          is.nan(.data[[metric_name]]),
-          Inf,
-          .data[[metric_name]]
-        )
-      )
+    migrate_percent(
+      data = data,
+      state_start_name = state_start_name,
+      metric_name = metric_name
+    )
 
     # otherwise, if `percent == FALSE` (this is the default) return the `data`
     # data frame
