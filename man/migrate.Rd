@@ -11,9 +11,8 @@ migrate(
   state,
   metric = NULL,
   percent = TRUE,
-  verbose = TRUE,
-  rating = NULL,
-  date = NULL
+  fill_state = NULL,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -44,17 +43,17 @@ the state migration by}
 \item{percent}{If `FALSE`, will calculate the migration on an absolute basis
 (rather than a percentage basis, which is the default)}
 
+\item{fill_state}{(Optional) A value (e.g., a character string such as "No
+Rating" or "NR") to be used as the *filler* `state` for any `id` values
+that only exist at one timepoint in the `data`.}
+
 \item{verbose}{If `TRUE`, the function returns an informational message about
 the transition period}
-
-\item{rating}{Deprecated; please use `state` instead.}
-
-\item{date}{Deprecated; please use `time` instead.}
 }
 \value{
 A data frame containing three (3) column variables representing the unique
-combinations of starting & ending credit risk states and the calculated migration
-observed during the period.
+combinations of starting & ending credit risk states and the calculated
+migration observed during the period.
 }
 \description{
 `migrate()` summarizes the transition amount (or percentage) of a continuous
@@ -80,4 +79,13 @@ migrate(
   percent = FALSE
 )
 
+# Provide a filler `state` value when a unique `id` is missing a timepoint
+migrate(
+  data = head(mock_credit, n = 995),   # drop the last 5 observations
+  id = customer_id,
+  time = date,
+  state = risk_rating,
+  fill_state = "NR",
+  percent = FALSE
+)
 }
