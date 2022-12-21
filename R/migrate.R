@@ -146,26 +146,6 @@ time_message <- function(times) {
 
 
 
-# Add the 'fill_state' argument value to the factor levels of the 'state' column
-# variable
-add_state_fill_factor <- function(data, state, state_name) {
-
-  data %>%
-    dplyr::mutate(
-      "{state_name}" := factor(
-        x = {{ state }},
-        levels = c(
-          levels(data[[state_name]]),
-          as.character(fill_state)
-        ),
-        ordered = TRUE
-      )
-    )
-
-}
-
-
-
 # Remove any NA values across all columns; this will drop observations found
 # at only a single time point, unless the `fill_state` argument is *not* NULL
 drop_missing_timepoints <- function(data) {
@@ -247,27 +227,30 @@ migrate_percent <- function(data, state_start_name, metric_name) {
 #'   in the dataset; once at the first unique `time` value and again at the
 #'   second unique `time` value, unless the ID only existed at one of those two
 #'   times).
+#' @param id The column variable of the `data` data frame argument that contains
+#'   the unique identifier to track where a particular credit facility migrated
+#'   to/from. If left null, `migrate()` will attempt to use the first column
+#'   variable from the data frame provided in the `data` argument.
 #' @param time The column variable of in the `data` data frame representing the
 #'   time point (e.g., a Date) of each observation; this column should contain
 #'   two unique values (migration from Time A to Time B)
 #' @param state The column variable of the `data` data frame argument that
 #'   contains the credit risk state values.
-#' @param id The column variable of the `data` data frame argument that contains
-#'   the unique identifier to track where a particular credit facility migrated
-#'   to/from. If left null, `migrate()` will attempt to use the first column
-#'   variable from the data frame provided in the `data` argument.
 #' @param metric (Optional) The column variable of type "numeric" in the `data`
 #'   data frame argument that contains the continuous metric values to weight
 #'   the state migration by
 #' @param percent If `FALSE`, will calculate the migration on an absolute basis
 #'   (rather than a percentage basis, which is the default)
+#' @param fill_state (Optional) A value (e.g., a character string such as "No
+#'   Rating" or "NR") to be used as the *filler* `state` for any `id` values
+#'   that only exist at one timepoint in the `data`.
 #' @param verbose If `TRUE`, the function returns an informational message about
 #'   the transition period
 #'
 #' @return
 #' A data frame containing three (3) column variables representing the unique
-#' combinations of starting & ending credit risk states and the calculated migration
-#' observed during the period.
+#' combinations of starting & ending credit risk states and the calculated
+#' migration observed during the period.
 #'
 #' @importFrom rlang := .data
 #'
@@ -292,6 +275,15 @@ migrate_percent <- function(data, state_start_name, metric_name) {
 #'   percent = FALSE
 #' )
 #'
+#' # Provide a filler `state` value when a unique `id` is missing a timepoint
+#' migrate(
+#'   data = head(mock_credit, n = 995),   # drop the last 5 observations
+#'   id = customer_id,
+#'   time = date,
+#'   state = risk_rating,
+#'   fill_state = "NR",
+#'   percent = FALSE
+#' )
 migrate <- function(data, id, time, state,
                     metric = NULL, percent = TRUE, fill_state = NULL,
                     verbose = TRUE) {
@@ -364,11 +356,17 @@ migrate <- function(data, id, time, state,
     # ... add the fill state to the factor levels (if it doesn't already exist)
     if (!fill_state %in% levels(data[[state_name]])) {
 
-      data <- add_state_fill_factor(
-        data = data,
-        state = state,
-        state_name = state_name
-      )
+      data <- data %>%
+        dplyr::mutate(
+          "{state_name}" := factor(
+            x = {{ state }},
+            levels = c(
+              levels(data[[state_name]]),
+              as.character(fill_state)
+            ),
+            ordered = TRUE
+          )
+        )
 
     }
 
