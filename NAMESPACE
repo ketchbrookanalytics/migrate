@@ -3,7 +3,7 @@
 export("%>%")
 export(build_matrix)
 export(migrate)
-import(utils)
 importFrom(magrittr,"%>%")
 importFrom(rlang,":=")
 importFrom(rlang,.data)
+importFrom(utils,globalVariables)
