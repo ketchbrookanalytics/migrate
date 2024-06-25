@@ -1,0 +1,32 @@
+{
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": "."
+    },
+
+    // Features to add to the dev container. More info: https://containers.dev/features.
+	"features": {
+
+		// Install additional R package dependencies
+		"ghcr.io/rocker-org/devcontainer-features/r-packages:1": {
+			"packages": "testthat, knitr, rmarkdown, dplyr, tidyr, tibble, rlang, utils, magrittr",
+			"additionalRepositories": "CRAN = 'https://packagemanager.posit.co/cran/__linux__/jammy/latest'"
+		}
+
+	},
+
+    "customizations": {
+        // Settings for VS Code.
+        "vscode": {
+            "extensions": [
+                "reditorsupport.r"
+            ],
+            "settings": {
+                "r.bracketedPaste": true,
+                "r.plot.useHttpgd": true,
+                "r.lsp.diagnostics": false,
+                "r.lsp.promptToInstall": false
+            }
+        }
+    }
+}
