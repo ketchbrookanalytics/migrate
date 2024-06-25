@@ -1,4 +1,4 @@
-FROM rocker/r-ver:4.4.0
+FROM rocker/r2u
 
 # Add system library dependencies
 # RUN apt-get update && apt-get install --no-install-recommends -y \

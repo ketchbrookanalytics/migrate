@@ -1,8 +1,5 @@
 {
-    "build": {
-        "dockerfile": "Dockerfile",
-        "context": "."
-    },
+    "image": "rocker/r2u",
 
     // Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
