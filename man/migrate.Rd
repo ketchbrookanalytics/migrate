@@ -20,34 +20,34 @@ migrate(
 data.table) containing a minimum of three (3) column variables representing
 a time, a credit risk state, and an ID identifying the credit facility (we
 would expect to see most unique values in this column variable appear twice
-in the dataset; once at the first unique `time` value and again at the
-second unique `time` value, unless the ID only existed at one of those two
+in the dataset; once at the first unique \code{time} value and again at the
+second unique \code{time} value, unless the ID only existed at one of those two
 times).}
 
-\item{id}{The column variable of the `data` data frame argument that contains
+\item{id}{The column variable of the \code{data} data frame argument that contains
 the unique identifier to track where a particular credit facility migrated
-to/from. If left null, `migrate()` will attempt to use the first column
-variable from the data frame provided in the `data` argument.}
+to/from. If left null, \code{migrate()} will attempt to use the first column
+variable from the data frame provided in the \code{data} argument.}
 
-\item{time}{The column variable of in the `data` data frame representing the
+\item{time}{The column variable of in the \code{data} data frame representing the
 time point (e.g., a Date) of each observation; this column should contain
 two unique values (migration from Time A to Time B)}
 
-\item{state}{The column variable of the `data` data frame argument that
+\item{state}{The column variable of the \code{data} data frame argument that
 contains the credit risk state values.}
 
-\item{metric}{(Optional) The column variable of type "numeric" in the `data`
+\item{metric}{(Optional) The column variable of type "numeric" in the \code{data}
 data frame argument that contains the continuous metric values to weight
 the state migration by}
 
-\item{percent}{If `FALSE`, will calculate the migration on an absolute basis
+\item{percent}{If \code{FALSE}, will calculate the migration on an absolute basis
 (rather than a percentage basis, which is the default)}
 
 \item{fill_state}{(Optional) A value (e.g., a character string such as "No
-Rating" or "NR") to be used as the *filler* `state` for any `id` values
-that only exist at one timepoint in the `data`.}
+Rating" or "NR") to be used as the \emph{filler} \code{state} for any \code{id} values
+that only exist at one timepoint in the \code{data}.}
 
-\item{verbose}{If `TRUE`, the function returns an informational message about
+\item{verbose}{If \code{TRUE}, the function returns an informational message about
 the transition period}
 }
 \value{
@@ -56,7 +56,7 @@ combinations of starting & ending credit risk states and the calculated
 migration observed during the period.
 }
 \description{
-`migrate()` summarizes the transition amount (or percentage) of a continuous
+\code{migrate()} summarizes the transition amount (or percentage) of a continuous
 variable from each beginning credit risk state category to each ending credit
 risk state, given a data frame input.
 }

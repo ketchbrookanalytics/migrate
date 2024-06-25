@@ -199,21 +199,6 @@ test_that("migrate() outputs starting sums when `percent = FALSE`", {
 })
 
 
-test_that("migrate() throws an error if deprecated `rating` argument is used", {
-
-  expect_error(
-    migrate(
-      data = mock_credit,
-      time = date,
-      rating = risk_rating,   # use `rating` instead of `state`
-      id = customer_id
-    ),
-    regexp = "`rating` argument is deprecated"
-  )
-
-})
-
-
 test_that("migrate() throws a warning if `state` variable is not an ordered factor", {
 
   # suggest ordering the given factor
@@ -371,6 +356,35 @@ test_that("migrate() correctly names third column based upon `metric` argument",
       )
     )[3],
     "principal_balance"
+  )
+
+})
+
+test_that("migrate() coerces 'character'-type `state` columns to type 'factor'", {
+
+  suppressWarnings({
+    df_character <- migrate(
+      data = dplyr::mutate(mock_credit, risk_rating = as.character(risk_rating)),
+      id = customer_id,
+      time = date,
+      state = risk_rating,
+      verbose = FALSE
+    )
+  })
+
+  expect_identical(
+    raw_ct |>
+      dplyr::mutate(
+        dplyr::across(
+          .cols = c(risk_rating_start, risk_rating_end),
+          .fns = function(x) as.character(x) |> as.factor()
+        )
+      ) |>
+      dplyr::arrange(
+        risk_rating_start,
+        risk_rating_end
+      ),
+    df_character
   )
 
 })
