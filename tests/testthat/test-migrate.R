@@ -199,21 +199,6 @@ test_that("migrate() outputs starting sums when `percent = FALSE`", {
 })
 
 
-test_that("migrate() throws an error if deprecated `rating` argument is used", {
-
-  expect_error(
-    migrate(
-      data = mock_credit,
-      time = date,
-      rating = risk_rating,   # use `rating` instead of `state`
-      id = customer_id
-    ),
-    regexp = "`rating` argument is deprecated"
-  )
-
-})
-
-
 test_that("migrate() throws a warning if `state` variable is not an ordered factor", {
 
   # suggest ordering the given factor
