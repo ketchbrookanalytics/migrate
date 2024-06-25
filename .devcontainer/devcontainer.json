@@ -6,7 +6,7 @@
 
 		// Install additional R package dependencies
 		"ghcr.io/rocker-org/devcontainer-features/r-packages:1": {
-			"packages": "testthat, knitr, rmarkdown, dplyr, tidyr, tibble, rlang, utils, magrittr",
+			"packages": "testthat, knitr, rmarkdown, dplyr, tidyr, tibble, rlang, utils, magrittr, devtools, usethis, testthat",
 			"additionalRepositories": "CRAN = 'https://packagemanager.posit.co/cran/__linux__/jammy/latest'"
 		}
 
