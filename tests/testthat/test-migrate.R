@@ -374,3 +374,32 @@ test_that("migrate() correctly names third column based upon `metric` argument",
   )
 
 })
+
+test_that("migrate() coerces 'character'-type `state` columns to type 'factor'", {
+
+  suppressWarnings({
+    df_character <- migrate(
+      data = dplyr::mutate(mock_credit, risk_rating = as.character(risk_rating)),
+      id = customer_id,
+      time = date,
+      state = risk_rating,
+      verbose = FALSE
+    )
+  })
+
+  expect_identical(
+    raw_ct |>
+      dplyr::mutate(
+        dplyr::across(
+          .cols = c(risk_rating_start, risk_rating_end),
+          .fns = function(x) as.character(x) |> as.factor()
+        )
+      ) |>
+      dplyr::arrange(
+        risk_rating_start,
+        risk_rating_end
+      ),
+    df_character
+  )
+
+})

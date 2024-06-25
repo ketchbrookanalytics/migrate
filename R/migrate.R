@@ -101,7 +101,7 @@ coerce_factor <- function(data, state_name) {
     ) %>% rlang::warn()
 
     data <- data %>%
-      dplyr::mutate(state_name := as.factor({{ state }}))
+      dplyr::mutate("{ state_name }" := as.factor(state_vec))
 
   }
 
