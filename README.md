@@ -29,7 +29,7 @@ credit migration matrix using the *absolute* approach; each cell in the
 grid represents the total balance in the portfolio at 2020-06-30 that
 started at the Risk Rating represented on the left-hand vertical axis
 and ended (at 2020-09-30) at the Risk Rating represented on the upper
-horizontal axis of the matrix. For example, $6.58M moved from a Risk
+horizontal axis of the matrix. For example, \$6.58M moved from a Risk
 Rating **AAA** at 2020-06-30 to a Risk Rating **AA** at 2020-09-30.
 
 While the above, *absolute*, migration example is typically more of a
@@ -100,14 +100,14 @@ data("mock_credit")
 head(mock_credit[order(mock_credit$customer_id), ])   # sort by 'customer_id'
 ```
 
-| customer\_id   | date       | risk\_rating | principal\_balance |
-|:---------------|:-----------|:-------------|-------------------:|
-| Customer\_1001 | 2020-06-30 | A            |             915000 |
-| Customer\_1001 | 2020-09-30 | A            |            1328000 |
-| Customer\_1002 | 2020-06-30 | AAA          |             979000 |
-| Customer\_1002 | 2020-09-30 | AAA          |             354000 |
-| Customer\_1003 | 2020-06-30 | BBB          |            1400000 |
-| Customer\_1003 | 2020-09-30 | BBB          |             356000 |
+| customer_id   | date       | risk_rating | principal_balance |
+|:--------------|:-----------|:------------|------------------:|
+| Customer_1001 | 2020-06-30 | A           |            915000 |
+| Customer_1001 | 2020-09-30 | A           |           1328000 |
+| Customer_1002 | 2020-06-30 | AAA         |            979000 |
+| Customer_1002 | 2020-09-30 | AAA         |            354000 |
+| Customer_1003 | 2020-06-30 | BBB         |           1400000 |
+| Customer_1003 | 2020-09-30 | BBB         |            356000 |
 
 Note that an important feature of the `mock_credit` dataset is that
 there are exactly two (2) unique values in the `date` column variable;
@@ -129,8 +129,12 @@ migrated_df <- migrate(
   state = risk_rating, 
 )
 #> === Migrating from: `2020-06-30` --> `2020-09-30` ===
+```
+
+``` r
+
 head(migrated_df)
-#> # A tibble: 6 x 3
+#> # A tibble: 6 × 3
 #>   risk_rating_start risk_rating_end   prop
 #>   <ord>             <ord>            <dbl>
 #> 1 AAA               AAA             0.774 
@@ -158,10 +162,10 @@ build_matrix(migrated_df)
 #> CCC 0.000000000 0.00000000 0.00000000 0.00000000 0.00000000 0.14285714 0.85714286
 ```
 
-Or, to do it all in one shot, use the `%>%`
+Or, to do it all in one shot, use the `|>`
 
 ``` r
-mock_credit %>% 
+mock_credit |> 
   migrate(
     id = customer_id, 
     time = date, 
@@ -169,7 +173,7 @@ mock_credit %>%
     metric = principal_balance, 
     percent = FALSE, 
     verbose = FALSE
-  ) %>% 
+  ) |>
   build_matrix(
     state_start = risk_rating_start, 
     state_end = risk_rating_end, 
