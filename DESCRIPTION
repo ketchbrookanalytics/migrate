@@ -34,8 +34,7 @@ Imports:
     tidyr (>= 1.1.0), 
     tibble (>= 3.0.1), 
     rlang, 
-    utils, 
-    magrittr
+    utils
 VignetteBuilder: 
     knitr
 Language: en-US
