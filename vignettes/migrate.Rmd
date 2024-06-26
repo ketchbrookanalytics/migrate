@@ -45,7 +45,7 @@ head(mock_credit[order(mock_credit$customer_id), ])   # sort by 'customer_id'
 ```
 
 ```{r data_tbl, echo = FALSE}
-head(mock_credit[order(mock_credit$customer_id), ]) %>% 
+head(mock_credit[order(mock_credit$customer_id), ]) |>
   knitr::kable(row.names = FALSE)
 ```
 
@@ -73,9 +73,9 @@ To create the state migration matrix, use the `build_matrix()` function
 build_matrix(migrated_df)
 ```
 
-Or, to do it all in one shot, use the `%>%`
+Or, to do it all in one shot, use the `|>`
 ```{r pipe} 
-mock_credit %>% 
+mock_credit |>
   migrate(
     id = customer_id, 
     time = date, 
@@ -83,7 +83,7 @@ mock_credit %>%
     metric = principal_balance, 
     percent = FALSE, 
     verbose = FALSE
-  ) %>% 
+  ) |>
   build_matrix(
     state_start = risk_rating_start, 
     state_end = risk_rating_end, 
