@@ -62,11 +62,11 @@ test_that("migrate() returns a three-column dataframe", {
   )
 
   expect_true(
-    is.numeric(raw_ct %>% dplyr::pull(-1))
+    is.numeric(raw_ct |> dplyr::pull(-1))
   )
 
   expect_true(
-    is.numeric(raw_wtd %>% dplyr::pull(-1))
+    is.numeric(raw_wtd |> dplyr::pull(-1))
   )
 
   expect_true(
@@ -77,7 +77,7 @@ test_that("migrate() returns a three-column dataframe", {
       id = customer_id,
       percent = FALSE,
       verbose = FALSE
-    ) %>% dplyr::pull(-1) %>% is.numeric
+    ) |> dplyr::pull(-1) |> is.numeric()
   )
 
   expect_true(
@@ -89,7 +89,7 @@ test_that("migrate() returns a three-column dataframe", {
       metric = principal_balance,
       percent = FALSE,
       verbose = FALSE
-    ) %>% dplyr::pull(-1) %>% is.numeric
+    ) |> dplyr::pull(-1) |> is.numeric()
   )
 
 })
@@ -161,7 +161,7 @@ test_that("migrate() outputs starting sums when `percent = FALSE`", {
   # the total 'count' output should equal the input number of observations at
   # the earliest time (assuming each ID has exactly 2 observations in the data)
   expect_equal(
-    mock_credit %>% dplyr::filter(date == min_time) %>% nrow(),
+    mock_credit |> dplyr::filter(date == min_time) |> nrow(),
     migrate(
       data = mock_credit,
       time = date,
@@ -169,17 +169,17 @@ test_that("migrate() outputs starting sums when `percent = FALSE`", {
       id = customer_id,
       percent = FALSE,
       verbose = FALSE
-    ) %>%
-      dplyr::pull(count) %>%
+    ) |>
+      dplyr::pull(count) |>
       sum()
   )
 
   # similar behavior should take place when using a metric
   expect_equal(
 
-    mock_credit %>%
-      dplyr::filter(date == min_time) %>%
-      dplyr::pull(principal_balance) %>%
+    mock_credit |>
+      dplyr::filter(date == min_time) |>
+      dplyr::pull(principal_balance) |>
       sum(),
 
     migrate(
@@ -190,8 +190,8 @@ test_that("migrate() outputs starting sums when `percent = FALSE`", {
       metric = principal_balance,
       percent = FALSE,
       verbose = FALSE
-    ) %>%
-      dplyr::pull(principal_balance) %>%
+    ) |>
+      dplyr::pull(principal_balance) |>
       sum()
 
   )
@@ -203,8 +203,8 @@ test_that("migrate() throws a warning if `state` variable is not an ordered fact
 
   # suggest ordering the given factor
   expect_warning(
-    mock_credit %>%
-      dplyr::mutate(risk_rating = factor(risk_rating, ordered = FALSE)) %>%
+    mock_credit |>
+      dplyr::mutate(risk_rating = factor(risk_rating, ordered = FALSE)) |>
       migrate(
         time = date,
         state = risk_rating,
@@ -216,8 +216,8 @@ test_that("migrate() throws a warning if `state` variable is not an ordered fact
 
   # suggest converting to an ordered factor
   expect_warning(
-    mock_credit %>%
-      dplyr::mutate(risk_rating = as.character(risk_rating)) %>%
+    mock_credit |>
+      dplyr::mutate(risk_rating = as.character(risk_rating)) |>
       migrate(
         time = date,
         state = risk_rating,
@@ -234,13 +234,13 @@ test_that("migrate() expects exactly 2 unique time values for each `id` value", 
 
   # error if > 2 distinct `time` values found
   expect_error(
-    mock_credit %>%
+    mock_credit |>
       # add an extra observation with a different date
       dplyr::bind_rows(
-        mock_credit %>%
-          dplyr::slice(1) %>%
+        mock_credit |>
+          dplyr::slice(1) |>
           dplyr::mutate(date = as.Date("1900-01-01"))
-      ) %>%
+      ) |>
       migrate(
         time = date,
         state = risk_rating,
@@ -251,11 +251,11 @@ test_that("migrate() expects exactly 2 unique time values for each `id` value", 
 
   # randomly choose an integer representing the number of observations to remove
   # from the tail of the data frame
-  rows_to_omit <- runif(1, min = 1, max = 10) %>% round(0)
+  rows_to_omit <- runif(1, min = 1, max = 10) |> round(0)
 
   expect_warning(
     migrate(
-      data = mock_credit %>% dplyr::slice(-(1:rows_to_omit)),   # remove rows
+      data = mock_credit |> dplyr::slice(-(1:rows_to_omit)),   # remove rows
       time = date,
       state = risk_rating,
       id = customer_id,
@@ -301,8 +301,8 @@ test_that("migrate() throws an error if `metric` argument is supplied incorrectl
 test_that("migrate() throws an error if `metric` argument is not numeric column", {
 
   expect_error(
-    mock_credit %>%
-      dplyr::mutate(principal_balance = as.character(principal_balance)) %>%
+    mock_credit |>
+      dplyr::mutate(principal_balance = as.character(principal_balance)) |>
       migrate(
         time = date,
         state = risk_rating,
