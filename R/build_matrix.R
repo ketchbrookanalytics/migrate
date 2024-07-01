@@ -68,7 +68,7 @@ build_matrix <- function(data, state_start = NULL, state_end = NULL,
   # Make sure the 'data' argument is a valid data frame
   if (!is.data.frame(data)) {
 
-    rlang::abort(
+    cli::cli_abort(
       paste0(
         "`data` argument must be a valid data frame, not an object of type:",
         class(data)
@@ -92,7 +92,7 @@ build_matrix <- function(data, state_start = NULL, state_end = NULL,
         "Multiple columns of type `factor` with the phrase \"start\" in the ",
         "column variable name were found in `data`"
       ) |>
-        rlang::abort()
+        cli::cli_abort()
 
     }
 
@@ -102,7 +102,7 @@ build_matrix <- function(data, state_start = NULL, state_end = NULL,
         "No columns of type `factor` with the phrase \"start\" in the column ",
         "variable name were found"
       ) |>
-        rlang::abort()
+        cli::cli_abort()
 
     }
 
@@ -113,7 +113,7 @@ build_matrix <- function(data, state_start = NULL, state_end = NULL,
       colnames(state_start_col),
       "` as the \'state_start\' column variable"
     ) |>
-      rlang::inform()
+      cli::cli_alert_info()
 
     state_start_sym <- colnames(state_start_col) |>
       rlang::sym()
@@ -142,7 +142,7 @@ build_matrix <- function(data, state_start = NULL, state_end = NULL,
         "Multiple columns of type `factor` with the phrase \"end\" in the ",
         "column variable name were found in `data`"
       ) |>
-        rlang::abort()
+        cli::cli_abort()
 
     }
 
@@ -152,7 +152,7 @@ build_matrix <- function(data, state_start = NULL, state_end = NULL,
         "No columns of type `factor` with the phrase \"end\" in the column ",
         "variable name were found"
       ) |>
-        rlang::abort()
+        cli::cli_abort()
 
     }
 
@@ -163,7 +163,7 @@ build_matrix <- function(data, state_start = NULL, state_end = NULL,
       colnames(state_end_col),
       "` as the \'state_end\' column variable"
     ) |>
-      rlang::inform()
+      cli::cli_alert_info()
 
     state_end_sym <- colnames(state_end_col) |>
       rlang::sym()
@@ -187,14 +187,14 @@ build_matrix <- function(data, state_start = NULL, state_end = NULL,
     # Throw error if there are multiple columns matching the above criteria
     if (ncol(metric_col) > 1) {
 
-        rlang::abort("Multiple columns of type `numeric` were found in `data`")
+        cli::cli_abort("Multiple columns of type `numeric` were found in `data`")
 
     }
 
     # Throw error if there are no columns matching the above criteria
     if (ncol(metric_col) == 0) {
 
-      rlang::abort("No columns of type `numeric` were found in `data`")
+      cli::cli_abort("No columns of type `numeric` were found in `data`")
 
     }
 
@@ -204,7 +204,7 @@ build_matrix <- function(data, state_start = NULL, state_end = NULL,
       colnames(metric_col),
       "` as the \'metric\' column variable"
     ) |>
-      rlang::inform()
+      cli::cli_alert_info()
 
     metric_sym <- colnames(metric_col) |>
       rlang::sym()

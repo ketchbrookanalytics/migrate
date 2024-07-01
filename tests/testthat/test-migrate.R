@@ -706,8 +706,8 @@ test_that("migrate() correctly informs missing timepoint migration", {
   )
 
   expect_true(any(grepl("30 IDs have a missing timepoint:", messages_new_class)))
-  expect_true(any(grepl("Migrating 20 IDs with missing end timepoint to \\*new\\* class 'NR'", messages_new_class)))
-  expect_true(any(grepl("Migrating 10 IDs with missing start timepoint from \\*new\\* class 'NR'", messages_new_class)))
+  expect_true(any(grepl("Migrating 20 IDs with missing end timepoint to new class 'NR'", messages_new_class)))
+  expect_true(any(grepl("Migrating 10 IDs with missing start timepoint from new class 'NR'", messages_new_class)))
 
   messages_existing_class <- testthat::capture_messages(
     migrate(
@@ -722,7 +722,7 @@ test_that("migrate() correctly informs missing timepoint migration", {
   )
 
   expect_true(any(grepl("30 IDs have a missing timepoint:", messages_existing_class)))
-  expect_true(any(grepl("Migrating 20 IDs with missing end timepoint to \\*existing\\* class 'CCC'", messages_existing_class)))
-  expect_true(any(grepl("Migrating 10 IDs with missing start timepoint from \\*existing\\* class 'CCC'", messages_existing_class)))
+  expect_true(any(grepl("Migrating 20 IDs with missing end timepoint to existing class 'CCC'", messages_existing_class)))
+  expect_true(any(grepl("Migrating 10 IDs with missing start timepoint from existing class 'CCC'", messages_existing_class)))
 
 })

@@ -128,7 +128,7 @@ migrated_df <- migrate(
   time = date, 
   state = risk_rating, 
 )
-#> === Migrating from: `2020-06-30` --> `2020-09-30` ===
+#> Migrating from: `2020-06-30` to `2020-09-30`
 ```
 
 ``` r
