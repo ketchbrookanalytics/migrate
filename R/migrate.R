@@ -353,8 +353,37 @@ migrate <- function(data, id, time, state,
   # If the user supplied a 'fill_state' value...
   if (!is.null(fill_state)) {
 
+    fill_state_is_new <- !fill_state %in% levels(data[[state_name]])
+
+    if (verbose) {
+
+      # Determine number of IDs with a missing start or end timepoint
+      data_wide <- data |>
+        tidyr::pivot_wider(
+          id_cols = {{ id }},
+          names_from = {{ time }},
+          values_from = {{ time }}
+        )
+  
+      n_missing_start <- sum(is.na(data_wide[[2]]))
+      n_missing_end <- sum(is.na(data_wide[[3]]))
+    
+      n_missing <- n_missing_start + n_missing_end
+
+      fill_state_class_type <- ifelse(fill_state_is_new, "*new*", "*existing*")
+
+      # Inform the user
+      cli::cli_div(theme = list(ul = list(`margin-left` = 2, before = "")))
+      cli::cli_alert_info(glue::glue("{ n_missing } IDs have a missing timepoint:"))
+      cli::cli_ul(id = "ul_id")
+        cli::cli_li(glue::glue("Migrating { n_missing_end } IDs with missing end timepoint to { fill_state_class_type } class '{ fill_state }'"))
+        cli::cli_li(glue::glue("Migrating { n_missing_start } IDs with missing start timepoint from { fill_state_class_type } class '{ fill_state }'"))
+      cli::cli_end(id = "ul_id")
+
+    }
+
     # ... add the fill state to the factor levels (if it doesn't already exist)
-    if (!fill_state %in% levels(data[[state_name]])) {
+    if (fill_state_is_new) {
 
       data <- data |>
         dplyr::mutate(
