@@ -690,3 +690,39 @@ test_that("migrate() sets the value defined in `fill_state` as the greatest fact
   expect_identical("ABC", levels[length(levels)])
 
 })
+
+test_that("migrate() correctly informs missing timepoint migration", {
+
+  messages_new_class <- testthat::capture_messages(
+    migrate(
+      data = mock_credit_with_missing,
+      time = date,
+      state = risk_rating,
+      id = customer_id,
+      percent = FALSE,
+      fill_state = "NR",
+      verbose = TRUE
+    )
+  )
+
+  expect_true(any(grepl("30 IDs have a missing timepoint:", messages_new_class)))
+  expect_true(any(grepl("Migrating 20 IDs with missing end timepoint to \\*new\\* class 'NR'", messages_new_class)))
+  expect_true(any(grepl("Migrating 10 IDs with missing start timepoint from \\*new\\* class 'NR'", messages_new_class)))
+
+  messages_existing_class <- testthat::capture_messages(
+    migrate(
+      data = mock_credit_with_missing,
+      time = date,
+      state = risk_rating,
+      id = customer_id,
+      percent = FALSE,
+      fill_state = "CCC",
+      verbose = TRUE
+    )
+  )
+
+  expect_true(any(grepl("30 IDs have a missing timepoint:", messages_existing_class)))
+  expect_true(any(grepl("Migrating 20 IDs with missing end timepoint to \\*existing\\* class 'CCC'", messages_existing_class)))
+  expect_true(any(grepl("Migrating 10 IDs with missing start timepoint from \\*existing\\* class 'CCC'", messages_existing_class)))
+
+})
