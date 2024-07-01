@@ -39,7 +39,7 @@ check_args <- function(data, percent, fill_state, verbose) {
       paste0(
         "`fill_state` argument must be length-one value (of type `character`,",
         " `numeric`, or `factor`)"
-      ) %>%
+      ) |>
         rlang::abort()
 
     }
@@ -77,7 +77,7 @@ coerce_factor <- function(data, state_name) {
         state_name,
         "` to an ordered factor before passing it to `migrate()` to ensure ",
         "that the rank-ordering in the final matrix displays correctly"
-      ) %>% rlang::warn()
+      ) |> rlang::warn()
 
     }
 
@@ -91,16 +91,16 @@ coerce_factor <- function(data, state_name) {
       "Converting `",
       state_name,
       "` to type `factor`"
-    ) %>% rlang::warn()
+    ) |> rlang::warn()
 
     paste0(
       "To ensure that your output is ordered correctly, convert the `",
       state_name,
       "` column variable in your data frame to an ordered factor before ",
       " passing to `migrate()`"
-    ) %>% rlang::warn()
+    ) |> rlang::warn()
 
-    data <- data %>%
+    data <- data |>
       dplyr::mutate("{ state_name }" := as.factor(state_vec))
 
   }
@@ -122,7 +122,7 @@ check_times <- function(times, time_name) {
       "` column variable; ",
       length(times),
       " unique values were found"
-    ) %>%
+    ) |>
       rlang::abort()
 
   }
@@ -139,7 +139,7 @@ time_message <- function(times) {
     "` --> `",
     times[2],
     "` ==="
-  ) %>%
+  ) |>
     rlang::inform()
 
 }
@@ -150,7 +150,7 @@ time_message <- function(times) {
 # at only a single time point, unless the `fill_state` argument is *not* NULL
 drop_missing_timepoints <- function(data) {
 
-  out <- data %>%
+  out <- data |>
     tidyr::drop_na()
 
   paste0(
@@ -158,7 +158,7 @@ drop_missing_timepoints <- function(data) {
     (nrow(data) - nrow(out)),
     " observations due to missingness or IDs only existing at one `time` ",
     "value"
-  ) %>%
+  ) |>
     rlang::warn()
 
   return(out)
@@ -173,7 +173,7 @@ migrate_count <- function(data,
                           state_start_name, state_end_name,
                           metric_name, metric_start_name) {
 
-  data %>%
+  data |>
     dplyr::group_by(
       dplyr::across(
         dplyr::all_of(
@@ -181,7 +181,7 @@ migrate_count <- function(data,
         )
       ),
       .drop = FALSE
-    ) %>%
+    ) |>
     dplyr::summarise(
       "{metric_name}" := sum(.data[[metric_start_name]]),
       .groups = "drop"
@@ -194,12 +194,12 @@ migrate_count <- function(data,
 # that ended up in the ending state class
 migrate_percent <- function(data, state_start_name, metric_name) {
 
-  data %>%
-    dplyr::group_by(.data[[state_start_name]]) %>%
+  data |>
+    dplyr::group_by(.data[[state_start_name]]) |>
     dplyr::mutate(
       "{metric_name}" := .data[[metric_name]] / sum(.data[[metric_name]])
-    ) %>%
-    dplyr::ungroup() %>%
+    ) |>
+    dplyr::ungroup() |>
     # Replace `NaN` values with `Inf` so that they are not dropped with `drop_na()`
     dplyr::mutate(
       "{metric_name}" := ifelse(
@@ -295,16 +295,16 @@ migrate <- function(data, id, time, state,
   data <- tibble::as_tibble(data)
 
   # Capture supplied  variable arguments as strings
-  id_name <- rlang::enquo(id) %>% rlang::as_label()
-  time_name <- rlang::enquo(time) %>% rlang::as_label()
-  state_name <- rlang::enquo(state) %>% rlang::as_label()
+  id_name <- rlang::enquo(id) |> rlang::as_label()
+  time_name <- rlang::enquo(time) |> rlang::as_label()
+  state_name <- rlang::enquo(state) |> rlang::as_label()
 
   # Coerce the `state` column variable to type "factor" (if necessary)
   data <- coerce_factor(data, state_name)
 
   # Capture the distinct `time` values, sorted ascending
-  times <- data[[time_name]] %>%
-    unique() %>%
+  times <- data[[time_name]] |>
+    unique() |>
     sort()
 
   # Stop execution if there aren't exactly 2 unique time values in the data
@@ -314,7 +314,7 @@ migrate <- function(data, id, time, state,
   if (!missing(metric)) {
 
     # Capture the name of the `metric` argument as a character string
-    metric_name <- rlang::enquo(metric) %>%
+    metric_name <- rlang::enquo(metric) |>
       rlang::as_label()
 
     # Stop if the `metric` variable doesn't exist in the `data` data frame,
@@ -356,7 +356,7 @@ migrate <- function(data, id, time, state,
     # ... add the fill state to the factor levels (if it doesn't already exist)
     if (!fill_state %in% levels(data[[state_name]])) {
 
-      data <- data %>%
+      data <- data |>
         dplyr::mutate(
           "{state_name}" := factor(
             x = {{ state }},
@@ -382,7 +382,7 @@ migrate <- function(data, id, time, state,
   }
 
   # Pivot the data from long to wide based upon the 'time' column variable
-  data <- data %>%
+  data <- data |>
     tidyr::pivot_wider(
       id_cols = {{ id }},
       names_from = {{ time }},

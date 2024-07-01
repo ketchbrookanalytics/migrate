@@ -48,10 +48,10 @@ mock_credit <- data.frame(
     1000,
     shape = 1.8,
     rate = 2
-  ) %>%
-    scales::rescale(to = c(10000, 5000000)) %>%
+  ) |>
+    scales::rescale(to = c(10000, 5000000)) |>
     round(digits = -3)
-) %>%
+) |>
   dplyr::mutate(
     risk_rating = dplyr::case_when(
       risk_rating == 1 ~ "AAA",
@@ -62,7 +62,7 @@ mock_credit <- data.frame(
       risk_rating == 6 ~ "B",
       risk_rating == 7 ~ "CCC"
     )
-  ) %>%
+  ) |>
   dplyr::mutate(risk_rating = factor(
     risk_rating,
     ordered = TRUE,

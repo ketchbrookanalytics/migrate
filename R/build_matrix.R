@@ -39,24 +39,24 @@
 #' @examples
 #' # Let `build_matrix()` guess which column variables represent `state_start`,
 #' # `state_end` and `metric`
-#' mock_credit %>%
+#' mock_credit |>
 #'   migrate(
 #'     time = date,
 #'     state = risk_rating,
 #'     id = customer_id,
 #'     metric = principal_balance
-#'   ) %>%
+#'   ) |>
 #'   build_matrix()
 #'
 #' # Specify which column variables represent `state_start`, `state_end` and
 #' # `metric`
-#' mock_credit %>%
+#' mock_credit |>
 #'   migrate(
 #'     id = customer_id,
 #'     time = date,
 #'     state = risk_rating,
 #'     percent = FALSE
-#'   ) %>%
+#'   ) |>
 #'   build_matrix(
 #'     state_start = risk_rating_start,
 #'     state_end = risk_rating_end,
@@ -82,7 +82,7 @@ build_matrix <- function(data, state_start = NULL, state_end = NULL,
 
     # Capture the columns in the `data` dataframe that are type `factor` and the
     # phrase "start" is in the column name
-    state_start_col <- data %>%
+    state_start_col <- data |>
       dplyr::select(where(is.factor) & contains("start"))
 
     # Ensure there is exactly 1 column in `state_start_col`
@@ -91,7 +91,7 @@ build_matrix <- function(data, state_start = NULL, state_end = NULL,
       paste0(
         "Multiple columns of type `factor` with the phrase \"start\" in the ",
         "column variable name were found in `data`"
-      ) %>%
+      ) |>
         rlang::abort()
 
     }
@@ -101,7 +101,7 @@ build_matrix <- function(data, state_start = NULL, state_end = NULL,
       paste0(
         "No columns of type `factor` with the phrase \"start\" in the column ",
         "variable name were found"
-      ) %>%
+      ) |>
         rlang::abort()
 
     }
@@ -112,10 +112,10 @@ build_matrix <- function(data, state_start = NULL, state_end = NULL,
       "Using `",
       colnames(state_start_col),
       "` as the \'state_start\' column variable"
-    ) %>%
+    ) |>
       rlang::inform()
 
-    state_start_sym <- colnames(state_start_col) %>%
+    state_start_sym <- colnames(state_start_col) |>
       rlang::sym()
 
   } else {
@@ -132,7 +132,7 @@ build_matrix <- function(data, state_start = NULL, state_end = NULL,
 
     # Capture the columns in the `data` data frame that are type `factor` and
     # the phrase "end" is in the column name
-    state_end_col <- data %>%
+    state_end_col <- data |>
       dplyr::select(where(is.factor) & contains("end"))
 
     # Ensure there is exactly 1 column in `state_end_col`
@@ -141,7 +141,7 @@ build_matrix <- function(data, state_start = NULL, state_end = NULL,
       paste0(
         "Multiple columns of type `factor` with the phrase \"end\" in the ",
         "column variable name were found in `data`"
-      ) %>%
+      ) |>
         rlang::abort()
 
     }
@@ -151,7 +151,7 @@ build_matrix <- function(data, state_start = NULL, state_end = NULL,
       paste0(
         "No columns of type `factor` with the phrase \"end\" in the column ",
         "variable name were found"
-      ) %>%
+      ) |>
         rlang::abort()
 
     }
@@ -162,10 +162,10 @@ build_matrix <- function(data, state_start = NULL, state_end = NULL,
       "Using `",
       colnames(state_end_col),
       "` as the \'state_end\' column variable"
-    ) %>%
+    ) |>
       rlang::inform()
 
-    state_end_sym <- colnames(state_end_col) %>%
+    state_end_sym <- colnames(state_end_col) |>
       rlang::sym()
 
   } else {
@@ -181,7 +181,7 @@ build_matrix <- function(data, state_start = NULL, state_end = NULL,
   if (missing(metric)) {
 
     # Capture the columns in the `data` data frame that are type `numeric`
-    metric_col <- data %>%
+    metric_col <- data |>
       dplyr::select(where(is.numeric))
 
     # Throw error if there are multiple columns matching the above criteria
@@ -203,10 +203,10 @@ build_matrix <- function(data, state_start = NULL, state_end = NULL,
       "Using `",
       colnames(metric_col),
       "` as the \'metric\' column variable"
-    ) %>%
+    ) |>
       rlang::inform()
 
-    metric_sym <- colnames(metric_col) %>%
+    metric_sym <- colnames(metric_col) |>
       rlang::sym()
 
   } else {
@@ -218,19 +218,19 @@ build_matrix <- function(data, state_start = NULL, state_end = NULL,
   }
 
   # Capture the row names for the matrix
-  row_names <- data %>%
-    dplyr::pull({{ state_start_sym }}) %>%
-    unique() %>%
+  row_names <- data |>
+    dplyr::pull({{ state_start_sym }}) |>
+    unique() |>
     sort()
 
   # Capture the column names for the matrix
-  col_names <- data %>%
-    dplyr::pull({{ state_end_sym }}) %>%
-    unique() %>%
+  col_names <- data |>
+    dplyr::pull({{ state_end_sym }}) |>
+    unique() |>
     sort()
 
   # Capture the values to fill in the matrix with
-  vals <- data %>%
+  vals <- data |>
     dplyr::pull({{ metric_sym }})
 
   # Replace any infinite values with NA values

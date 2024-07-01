@@ -47,24 +47,24 @@ at two distinct points in time.
 \examples{
 # Let `build_matrix()` guess which column variables represent `state_start`,
 # `state_end` and `metric`
-mock_credit \%>\%
+mock_credit |>
   migrate(
     time = date,
     state = risk_rating,
     id = customer_id,
     metric = principal_balance
-  ) \%>\%
+  ) |>
   build_matrix()
 
 # Specify which column variables represent `state_start`, `state_end` and
 # `metric`
-mock_credit \%>\%
+mock_credit |>
   migrate(
     id = customer_id,
     time = date,
     state = risk_rating,
     percent = FALSE
-  ) \%>\%
+  ) |>
   build_matrix(
     state_start = risk_rating_start,
     state_end = risk_rating_end,
