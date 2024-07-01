@@ -30,11 +30,13 @@ Suggests:
 Depends: 
     R (>= 4.1)
 Imports: 
-    dplyr (>= 1.0.7), 
-    tidyr (>= 1.1.0), 
-    tibble (>= 3.0.1), 
-    rlang, 
-    utils
+    dplyr (>= 1.0.7),
+    tidyr (>= 1.1.0),
+    tibble (>= 3.0.1),
+    rlang,
+    utils,
+    cli,
+    glue
 VignetteBuilder: 
     knitr
 Language: en-US
