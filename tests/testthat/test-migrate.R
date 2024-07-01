@@ -673,7 +673,7 @@ test_that("migrate() outputs more rows when `fill_state` is a value that doesn't
 
 })
 
-test_that("migrate() sets the value defined in `fill_state` as the smallest factor level", {
+test_that("migrate() sets the value defined in `fill_state` as the greatest factor level", {
 
   migrated_data <- migrate(
     data = mock_credit_with_missing,
