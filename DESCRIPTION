@@ -10,7 +10,11 @@ Authors@R:
       person(given = "Brad", 
              family = "Lindblad", 
              role = "ctb", 
-             email = "bradley.lindblad@gmail.com"))
+             email = "bradley.lindblad@gmail.com"),
+      person(given = "Ivan", 
+             family = "Millanes", 
+             role = "ctb", 
+             email = "imillanes@ketchbrookanalytics.com"))
 Description: Tools to help convert credit risk data at two time points 
     into traditional credit state migration (aka, "transition") matrices.
     At a higher level, 'migrate' is intended to help an analyst understand 
