@@ -10,7 +10,7 @@
 status](https://www.r-pkg.org/badges/version/migrate)](https://CRAN.R-project.org/package=migrate)
 [![metacran
 downloads](https://cranlogs.r-pkg.org/badges/migrate)](https://cran.r-project.org/package=migrate)
-[![R-CMD-check](https://github.com/mthomas-ketchbrook/migrate/workflows/R-CMD-check/badge.svg)](https://github.com/mthomas-ketchbrook/migrate/actions)
+[![R-CMD-check](https://github.com/ketchbrookanalytics/migrate/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ketchbrookanalytics/migrate/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 The goal of migrate is to provide credit analysts with an easy set of
