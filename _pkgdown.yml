@@ -1,3 +1,25 @@
+url: https://ketchbrookanalytics.github.io/migrate/
 template:
-  params:
-    bootswatch: cerulean
+  bootstrap: 5
+  bootswatch: simplex
+  bslib:
+    base_font:
+      google: DM Sans
+  theme: breeze-light
+navbar:
+  structure:
+    left:
+    - intro
+    - reference
+    - articles
+    - news
+    right: search
+reference:
+- title: Package Datasets
+  desc: Mock data to help you get started
+  contents: mock_credit
+- title: Exported Functions
+  contents:
+  - build_matrix
+  - migrate
+
