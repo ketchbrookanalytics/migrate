@@ -7,7 +7,7 @@ check_args <- function(data, percent, fill_state, verbose) {
   # Make sure the 'data' argument is a valid data frame
   if (!is.data.frame(data)) {
 
-    rlang::abort(
+    cli::cli_abort(
       paste0(
         "`data` argument must be a valid data frame, not an object of type:",
         class(data)
@@ -19,7 +19,7 @@ check_args <- function(data, percent, fill_state, verbose) {
   # Ensure the supplied `percent` argument is logical
   if (!is.logical(percent)) {
 
-    rlang::abort("`percent` argument must be logical TRUE/FALSE")
+    cli::cli_abort("`percent` argument must be logical TRUE/FALSE")
 
   }
 
@@ -40,7 +40,7 @@ check_args <- function(data, percent, fill_state, verbose) {
         "`fill_state` argument must be length-one value (of type `character`,",
         " `numeric`, or `factor`)"
       ) |>
-        rlang::abort()
+        cli::cli_abort()
 
     }
 
@@ -49,7 +49,7 @@ check_args <- function(data, percent, fill_state, verbose) {
   # Ensure the supplied `verbose` argument is logical
   if (!is.logical(verbose)) {
 
-    rlang::abort("`verbose` argument must be logical TRUE/FALSE")
+    cli::cli_abort("`verbose` argument must be logical TRUE/FALSE")
 
   }
 
@@ -72,12 +72,9 @@ coerce_factor <- function(data, state_name) {
     # to convert it to an ordered factor
     if (!is.ordered(state_vec)) {
 
-      paste0(
-        "Please consider converting `",
-        state_name,
-        "` to an ordered factor before passing it to `migrate()` to ensure ",
-        "that the rank-ordering in the final matrix displays correctly"
-      ) |> rlang::warn()
+      cli::cli_warn(
+        c("!" = glue::glue("Please consider converting `{ state_name }` to an ordered factor before passing it to `migrate()` to ensure that the rank-ordering in the final matrix displays correctly"))
+      )
 
     }
 
@@ -87,19 +84,13 @@ coerce_factor <- function(data, state_name) {
 
     # Print messages to console letting user know that variable is being
     # converted to type `factor`
-    paste0(
-      "Converting `",
-      state_name,
-      "` to type `factor`"
-    ) |> rlang::warn()
-
-    paste0(
-      "To ensure that your output is ordered correctly, convert the `",
-      state_name,
-      "` column variable in your data frame to an ordered factor before ",
-      " passing to `migrate()`"
-    ) |> rlang::warn()
-
+    cli::cli_warn(
+      c(
+        "!" = glue::glue("Converting `{ state_name }` to type `factor`"),
+        "!" = glue::glue("To ensure that your output is ordered correctly, convert the `{ state_name }` column variable in your data frame to an ordered factor before passing to `migrate()`")
+      )
+    )
+    
     data <- data |>
       dplyr::mutate("{ state_name }" := as.factor(state_vec))
 
@@ -123,7 +114,7 @@ check_times <- function(times, time_name) {
       length(times),
       " unique values were found"
     ) |>
-      rlang::abort()
+      cli::cli_abort()
 
   }
 
@@ -134,13 +125,12 @@ check_times <- function(times, time_name) {
 time_message <- function(times) {
 
   paste0(
-    "=== Migrating from: `",
+    "Migrating from ",
     times[1],
-    "` --> `",
-    times[2],
-    "` ==="
+    " to ",
+    times[2]
   ) |>
-    rlang::inform()
+    cli::cli_alert_info()
 
 }
 
@@ -153,13 +143,9 @@ drop_missing_timepoints <- function(data) {
   out <- data |>
     tidyr::drop_na()
 
-  paste0(
-    "Removed ",
-    (nrow(data) - nrow(out)),
-    " observations due to missingness or IDs only existing at one `time` ",
-    "value"
-  ) |>
-    rlang::warn()
+  cli::cli_warn(
+    c("!" = glue::glue("Removed { (nrow(data) - nrow(out)) } observations due to missingness or IDs only existing at one `time` value"))
+  )
 
   return(out)
 
@@ -320,14 +306,14 @@ migrate <- function(data, id, time, state,
     # Stop if the `metric` variable doesn't exist in the `data` data frame,
     if (!metric_name %in% colnames(data)) {
 
-      rlang::abort("`metric` argument must be an unquoted variable in `data`")
+      cli::cli_abort("`metric` argument must be an unquoted variable in `data`")
 
     }
 
     # Stop if the `metric` variable isn't numeric
     if (!is.numeric(data[[metric_name]])) {
 
-      rlang::abort("`metric` argument must be a numeric type variable in `data`")
+      cli::cli_abort("`metric` argument must be a numeric type variable in `data`")
 
     }
 
@@ -353,8 +339,37 @@ migrate <- function(data, id, time, state,
   # If the user supplied a 'fill_state' value...
   if (!is.null(fill_state)) {
 
+    fill_state_is_new <- !fill_state %in% levels(data[[state_name]])
+
+    if (verbose) {
+
+      # Determine number of IDs with a missing start or end timepoint
+      data_wide <- data |>
+        tidyr::pivot_wider(
+          id_cols = {{ id }},
+          names_from = {{ time }},
+          values_from = {{ time }}
+        )
+  
+      n_missing_start <- sum(is.na(data_wide[[2]]))
+      n_missing_end <- sum(is.na(data_wide[[3]]))
+    
+      n_missing <- n_missing_start + n_missing_end
+
+      fill_state_class_type <- ifelse(fill_state_is_new, "new", "existing")
+
+      # Inform the user
+      cli::cli_div(theme = list(ul = list(`margin-left` = 2, before = "")))
+      cli::cli_alert_info(glue::glue("{ n_missing } IDs have a missing timepoint:"))
+      cli::cli_ul(id = "ul_id")
+        cli::cli_li(glue::glue("Migrating { n_missing_end } IDs with missing end timepoint to { fill_state_class_type } class '{ fill_state }'"))
+        cli::cli_li(glue::glue("Migrating { n_missing_start } IDs with missing start timepoint from { fill_state_class_type } class '{ fill_state }'"))
+      cli::cli_end(id = "ul_id")
+
+    }
+
     # ... add the fill state to the factor levels (if it doesn't already exist)
-    if (!fill_state %in% levels(data[[state_name]])) {
+    if (fill_state_is_new) {
 
       data <- data |>
         dplyr::mutate(

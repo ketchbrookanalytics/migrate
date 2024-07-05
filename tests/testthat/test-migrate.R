@@ -388,3 +388,341 @@ test_that("migrate() coerces 'character'-type `state` columns to type 'factor'",
   )
 
 })
+
+## Tests for `fill_state` argument  ---------------------------------------
+
+# Create mock data with `customer_id` values that only exist at one timepoint.
+# In particular, `mock_credit_with_missing` has:
+# - 20 customers that have a value only in the first timepoint
+# - 10 customers that have a value only in the second timepoint
+mock_credit_with_missing <- mock_credit |> 
+  # Remove the first 10 rows
+  dplyr::slice(-(1:10)) |>
+  # Remove the last 20 rows
+  dplyr::slice(-((dplyr::n() - 19):dplyr::n()))
+
+test_that("migrate() doesn't remove customers with missing timepoints when `fill_state` is not NULL", {
+
+  migrate_counts_without_missing <- migrate(
+    data = mock_credit,
+    time = date,
+    state = risk_rating,
+    id = customer_id,
+    percent = FALSE,
+    verbose = FALSE
+  ) |> 
+    dplyr::pull(count) |> 
+    sum()
+
+  migrate_counts_with_missing <- migrate(
+    data = mock_credit_with_missing,
+    time = date,
+    state = risk_rating,
+    id = customer_id,
+    percent = FALSE,
+    fill_state = "NR",
+    verbose = FALSE
+  ) |> 
+    dplyr::pull(count) |> 
+    sum()
+
+  expect_equal(migrate_counts_without_missing, migrate_counts_with_missing)
+
+})
+
+test_that("migrate() removes customers with missing timepoints when `fill_state` is NULL", {
+
+  migrate_counts_without_fill_state <- suppressWarnings({
+    migrate(
+      data = mock_credit_with_missing,
+      time = date,
+      state = risk_rating,
+      id = customer_id,
+      percent = FALSE,
+      verbose = FALSE
+    ) |> 
+      dplyr::pull(count) |> 
+      sum()
+  }) 
+
+  migrate_counts_with_fill_state <- migrate(
+    data = mock_credit_with_missing,
+    time = date,
+    state = risk_rating,
+    id = customer_id,
+    percent = FALSE,
+    fill_state = "NR",
+    verbose = FALSE
+  ) |> 
+    dplyr::pull(count) |> 
+    sum()
+
+  expect_true(migrate_counts_without_fill_state < migrate_counts_with_fill_state)
+
+})
+
+test_that("migrate() uses the filler state defined in `fill_state`", {
+
+  fill1 <- migrate(
+    data = mock_credit_with_missing,
+    time = date,
+    state = risk_rating,
+    id = customer_id,
+    percent = FALSE,
+    fill_state = "NR",
+    verbose = FALSE
+  )
+
+  expect_true("NR" %in% fill1$risk_rating_start)
+  expect_true("NR" %in% fill1$risk_rating_end)
+
+  fill2 <- migrate(
+    data = mock_credit_with_missing,
+    time = date,
+    state = risk_rating,
+    id = customer_id,
+    percent = FALSE,
+    fill_state = "No Rating",
+    verbose = FALSE
+  )
+
+  expect_true("No Rating" %in% fill2$risk_rating_start)
+  expect_true("No Rating" %in% fill2$risk_rating_end)
+
+})
+
+test_that("migrate() assigns filler state correctly when `fill_state` is not NULL", {
+
+  migrated_data <- migrate(
+    data = mock_credit_with_missing,
+    time = date,
+    state = risk_rating,
+    id = customer_id,
+    percent = FALSE,
+    fill_state = "NR",
+    verbose = FALSE
+  )
+
+  n_missing_start <- migrated_data |> 
+    dplyr::count(risk_rating_start, wt = count) |> 
+    dplyr::filter(risk_rating_start == "NR") |> 
+    dplyr::pull(n)
+
+  n_missing_end <- migrated_data |> 
+    dplyr::count(risk_rating_end, wt = count) |> 
+    dplyr::filter(risk_rating_end == "NR") |> 
+    dplyr::pull(n)
+
+  # Recall that `mock_credit_with_missing` removed the first 10 and the last 20 rows
+  expect_true(n_missing_start == 10)
+  expect_true(n_missing_end == 20)
+
+})
+
+test_that("migrate() errors when `fill_state` is not a length one value", {
+
+  expect_error(
+    migrate(
+      data = mock_credit_with_missing,
+      time = date,
+      state = risk_rating,
+      id = customer_id,
+      percent = FALSE,
+      fill_state = c("NR", "No Rating"),
+      verbose = FALSE
+    ),
+    reg_exp = "`fill_state` argument must be length-one value (of type `character`, `numeric`, or `factor`)"
+  )
+
+})
+
+test_that("migrate() errors when `fill_state` is not of type `character`, `numeric` or `factor`", {
+
+  # Logical
+  expect_error(
+    migrate(
+      data = mock_credit_with_missing,
+      time = date,
+      state = risk_rating,
+      id = customer_id,
+      percent = FALSE,
+      fill_state = FALSE,
+      verbose = FALSE
+    ),
+    reg_exp = "`fill_state` argument must be length-one value (of type `character`, `numeric`, or `factor`)"
+  )
+
+  # Dataframe
+  expect_error(
+    migrate(
+      data = mock_credit_with_missing,
+      time = date,
+      state = risk_rating,
+      id = customer_id,
+      percent = FALSE,
+      fill_state = iris,
+      verbose = FALSE
+    ),
+    reg_exp = "`fill_state` argument must be length-one value (of type `character`, `numeric`, or `factor`)"
+  )
+
+})
+
+test_that("migrate() works when `fill_state` is of type `character`", {
+
+  migrated_data <- migrate(
+    data = mock_credit_with_missing,
+    time = date,
+    state = risk_rating,
+    id = customer_id,
+    percent = FALSE,
+    fill_state = "NR",
+    verbose = FALSE
+  )
+
+  expect_true(
+    inherits(migrated_data, "data.frame")
+  )
+
+})
+
+test_that("migrate() works when `fill_state` is of type `numeric`", {
+
+  migrated_data <- migrate(
+    data = mock_credit_with_missing,
+    time = date,
+    state = risk_rating,
+    id = customer_id,
+    percent = FALSE,
+    fill_state = 999,
+    verbose = FALSE
+  )
+
+  expect_true(
+    inherits(migrated_data, "data.frame")
+  )
+
+})
+
+test_that("migrate() works when `fill_state` is of type `factor`", {
+
+  migrated_data <- migrate(
+    data = mock_credit_with_missing,
+    time = date,
+    state = risk_rating,
+    id = customer_id,
+    percent = FALSE,
+    fill_state = as.factor("No Rating"),
+    verbose = FALSE
+  )
+
+  expect_true(
+    inherits(migrated_data, "data.frame")
+  )
+
+})
+
+test_that("migrate() works when `fill_state` is a value that already exists", {
+
+  migrated_data_without_missing <- migrate(
+    data = mock_credit,
+    time = date,
+    state = risk_rating,
+    id = customer_id,
+    percent = FALSE,
+    verbose = FALSE
+  )
+
+  migrated_data_with_missing <- migrate(
+    data = mock_credit_with_missing,
+    time = date,
+    state = risk_rating,
+    id = customer_id,
+    percent = FALSE,
+    fill_state = "CCC",
+    verbose = FALSE
+  )
+
+  expect_identical(nrow(migrated_data_without_missing), nrow(migrated_data_with_missing))
+  expect_identical(sum(migrated_data_without_missing$count),sum(migrated_data_with_missing$count))
+
+})
+
+test_that("migrate() outputs more rows when `fill_state` is a value that doesn't exist", {
+
+  migrated_data_without_missing <- migrate(
+    data = mock_credit,
+    time = date,
+    state = risk_rating,
+    id = customer_id,
+    percent = FALSE,
+    verbose = FALSE
+  )
+
+  migrated_data_with_missing <- migrate(
+    data = mock_credit_with_missing,
+    time = date,
+    state = risk_rating,
+    id = customer_id,
+    percent = FALSE,
+    fill_state = "NR",
+    verbose = FALSE
+  )
+
+  expect_true(nrow(migrated_data_without_missing) < nrow(migrated_data_with_missing))
+
+})
+
+test_that("migrate() sets the value defined in `fill_state` as the greatest factor level", {
+
+  migrated_data <- migrate(
+    data = mock_credit_with_missing,
+    time = date,
+    state = risk_rating,
+    id = customer_id,
+    percent = FALSE,
+    fill_state = "ABC",
+    verbose = FALSE
+  )
+
+  levels <- levels(migrated_data$risk_rating_start)
+
+  expect_identical("ABC", levels[length(levels)])
+
+})
+
+test_that("migrate() correctly informs missing timepoint migration", {
+
+  messages_new_class <- testthat::capture_messages(
+    migrate(
+      data = mock_credit_with_missing,
+      time = date,
+      state = risk_rating,
+      id = customer_id,
+      percent = FALSE,
+      fill_state = "NR",
+      verbose = TRUE
+    )
+  )
+
+  expect_true(any(grepl("30 IDs have a missing timepoint:", messages_new_class)))
+  expect_true(any(grepl("Migrating 20 IDs with missing end timepoint to new class 'NR'", messages_new_class)))
+  expect_true(any(grepl("Migrating 10 IDs with missing start timepoint from new class 'NR'", messages_new_class)))
+
+  messages_existing_class <- testthat::capture_messages(
+    migrate(
+      data = mock_credit_with_missing,
+      time = date,
+      state = risk_rating,
+      id = customer_id,
+      percent = FALSE,
+      fill_state = "CCC",
+      verbose = TRUE
+    )
+  )
+
+  expect_true(any(grepl("30 IDs have a missing timepoint:", messages_existing_class)))
+  expect_true(any(grepl("Migrating 20 IDs with missing end timepoint to existing class 'CCC'", messages_existing_class)))
+  expect_true(any(grepl("Migrating 10 IDs with missing start timepoint from existing class 'CCC'", messages_existing_class)))
+
+})
