@@ -90,3 +90,91 @@ mock_credit |>
     metric = principal_balance
   )
 ```
+
+## Handle IDs with observations at a single timepoint
+
+The following code creates a dataframe that features 500 customers with the following characteristics:
+
+- 470 customers have a value at both timepoints
+- 20 customers have a value only at the first timepoint
+- 10 customers have a value only at the second timepoint
+
+```{r}
+mock_credit_with_missing <- mock_credit |> 
+  # Remove the value at the first timepoint for 10 customers
+  dplyr::slice(-(1:10)) |>
+  # Remove the value at the last timepoint for 20 customers
+  dplyr::slice(-((dplyr::n() - 19):dplyr::n()))
+```
+
+Check that the new dataframe has information about 500 customers:
+
+```{r}
+# Number of unique customer_id values in mock_credit_with_missing
+dplyr::n_distinct(mock_credit_with_missing$customer_id)
+```
+
+By default, `migrate()` drops observations that belong to IDs found at a single timepoint. `migrate()` informs such behavior through a warning:
+
+```{r}
+migrated_data_without_fill_state <- mock_credit_with_missing |>
+  migrate(
+    id = customer_id, 
+    time = date, 
+    state = risk_rating, 
+    percent = FALSE, 
+    verbose = FALSE
+  )
+```
+
+Notice that only 470 customers have been migrated:
+
+```{r}
+migrated_data_without_fill_state |> 
+  dplyr::pull(count) |> 
+  sum()
+```
+
+You can use `migrate()`'s `fill_state` argument to ensure that no information is lost during the migration process. When a *filler state* value (e.g., a character string such as "No Rating" or "NR") is assigned to `fill_state`, IDs with a single timepoint are not removed but rather migrated from or to this *filler state*.
+
+When `verbose = TRUE` a message will provide additional information about the IDs with missing timepoints:
+
+```{r}
+migrated_data_with_fill_state <- mock_credit_with_missing |>
+  migrate(
+    id = customer_id, 
+    time = date, 
+    state = risk_rating,
+    fill_state = "No Rating",
+    percent = FALSE, 
+    verbose = TRUE
+  )
+```
+
+Check that 500 customers were migrated:
+
+```{r}
+migrated_data_with_fill_state |> 
+  dplyr::pull(count) |> 
+  sum()
+```
+
+So far we have been using `count` as the metric to easily determine the amount of customers that migrated in each scenario. The following code provides an example migration that leverages `principal_balance` as the metric:
+
+```{r}
+mock_credit_with_missing |>
+  migrate(
+    id = customer_id, 
+    time = date, 
+    state = risk_rating, 
+    metric = principal_balance, 
+    fill_state = "No Rating",
+    percent = FALSE, 
+    verbose = FALSE
+  ) |>
+  build_matrix(
+    state_start = risk_rating_start, 
+    state_end = risk_rating_end, 
+    metric = principal_balance
+  )
+```
