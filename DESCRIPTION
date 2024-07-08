@@ -15,7 +15,7 @@ Authors@R:
              family = "Millanes",
              role = "ctb",
              email = "imillanes@ketchbrookanalytics.com"))
-Description: Tools to help convert credit risk data at two time points
+Description: Tools to help convert credit risk data at two timepoints
     into traditional credit state migration (aka, "transition") matrices.
     At a higher level, 'migrate' is intended to help an analyst understand
     how risk moved in their credit portfolio over a time interval.

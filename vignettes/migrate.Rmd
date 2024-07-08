@@ -20,7 +20,7 @@ library(migrate)
 
 ## Using `migrate`
 
-This package is intended to serve as a set of tools to help convert credit risk data at two time points into traditional credit state migration (aka, "transition") matrices. At a higher level, `migrate` is intended to help an analyst understand how risk moved in their credit portfolio over a time interval.
+This package is intended to serve as a set of tools to help convert credit risk data at two timepoints into traditional credit state migration (aka, "transition") matrices. At a higher level, `migrate` is intended to help an analyst understand how risk moved in their credit portfolio over a time interval.
 
 ## Background
 

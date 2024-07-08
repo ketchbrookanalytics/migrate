@@ -30,7 +30,7 @@ to/from. If left null, \code{migrate()} will attempt to use the first column
 variable from the data frame provided in the \code{data} argument.}
 
 \item{time}{The column variable of in the \code{data} data frame representing the
-time point (e.g., a Date) of each observation; this column should contain
+timepoint (e.g., a Date) of each observation; this column should contain
 two unique values (migration from Time A to Time B)}
 
 \item{state}{The column variable of the \code{data} data frame argument that
