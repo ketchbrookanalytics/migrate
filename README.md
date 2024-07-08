@@ -141,7 +141,6 @@ migrated_df <- migrate(
 ```
 
 ``` r
-
 head(migrated_df)
 #> # A tibble: 6 × 3
 #>   risk_rating_start risk_rating_end   prop

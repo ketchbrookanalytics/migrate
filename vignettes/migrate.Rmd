@@ -64,7 +64,6 @@ migrated_df <- migrate(
   time = date, 
   state = risk_rating, 
 )
-
 head(migrated_df)
 ```
 
