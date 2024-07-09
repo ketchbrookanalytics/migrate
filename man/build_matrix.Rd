@@ -13,20 +13,20 @@ a starting credit risk state, an ending credit risk state, and a metric
 containing values representing the movement (i.e., "transition) in that
 metric between the starting credit risk state point in time and the ending
 credit risk state point in time. This style of data frame is output by the
-`migrate()` function within this package.}
+\code{migrate()} function within this package.}
 
 \item{state_start}{(Optional) A symbol or string, representing the column
-variable of the `data` data frame argument that contains the starting
+variable of the \code{data} data frame argument that contains the starting
 credit risk state values. If left null, function will attempt to find it
 for you.}
 
 \item{state_end}{(Optional) A symbol or string, representing the column
-variable of the `data` data frame argument that contains the starting
+variable of the \code{data} data frame argument that contains the starting
 credit risk state values. If left null, function will attempt to find it
 for you.}
 
 \item{metric}{(Optional) A symbol or string, representing the column variable
-of the `data` data frame argument that contains the metric for which the
+of the \code{data} data frame argument that contains the metric for which the
 grouped difference in value between the starting credit risk state period
 and ending credit risk state period was computed.}
 }
@@ -34,37 +34,37 @@ and ending credit risk state period was computed.}
 A matrix object, where the first (row) dimension represents the starting
 credit risk state, the second (column) dimension represents the ending credit
 risk state, and the values within the matrix represent the transitioned
-amount based upon the values in the `metric` continuous column variable from
-the `data` data frame.
+amount based upon the values in the \code{metric} continuous column variable from
+the \code{data} data frame.
 
-Note: A matrix object can be coerced to a data frame using `as.data.frame()`.
+Note: A matrix object can be coerced to a data frame using \code{as.data.frame()}.
 }
 \description{
-`build_matrix()` creates a credit migration (i.e., "transition") matrix from
-  summarized data representing each credit risk state & a continuous metric
-  at two distinct points in time.
+\code{build_matrix()} creates a credit migration (i.e., "transition") matrix from
+summarized data representing each credit risk state & a continuous metric
+at two distinct points in time.
 }
 \examples{
 # Let `build_matrix()` guess which column variables represent `state_start`,
 # `state_end` and `metric`
-mock_credit \%>\%
+mock_credit |>
   migrate(
     time = date,
     state = risk_rating,
     id = customer_id,
     metric = principal_balance
-  ) \%>\%
+  ) |>
   build_matrix()
 
 # Specify which column variables represent `state_start`, `state_end` and
 # `metric`
-mock_credit \%>\%
+mock_credit |>
   migrate(
     id = customer_id,
     time = date,
     state = risk_rating,
     percent = FALSE
-  ) \%>\%
+  ) |>
   build_matrix(
     state_start = risk_rating_start,
     state_end = risk_rating_end,

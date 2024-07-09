@@ -10,7 +10,7 @@
 status](https://www.r-pkg.org/badges/version/migrate)](https://CRAN.R-project.org/package=migrate)
 [![metacran
 downloads](https://cranlogs.r-pkg.org/badges/migrate)](https://cran.r-project.org/package=migrate)
-[![R-CMD-check](https://github.com/mthomas-ketchbrook/migrate/workflows/R-CMD-check/badge.svg)](https://github.com/mthomas-ketchbrook/migrate/actions)
+[![R-CMD-check](https://github.com/ketchbrookanalytics/migrate/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ketchbrookanalytics/migrate/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 The goal of migrate is to provide credit analysts with an easy set of
@@ -29,7 +29,7 @@ credit migration matrix using the *absolute* approach; each cell in the
 grid represents the total balance in the portfolio at 2020-06-30 that
 started at the Risk Rating represented on the left-hand vertical axis
 and ended (at 2020-09-30) at the Risk Rating represented on the upper
-horizontal axis of the matrix. For example, $6.58M moved from a Risk
+horizontal axis of the matrix. For example, \$6.58M moved from a Risk
 Rating **AAA** at 2020-06-30 to a Risk Rating **AA** at 2020-09-30.
 
 While the above, *absolute*, migration example is typically more of a
@@ -66,12 +66,12 @@ devtools::install_github("mthomas-ketchbrook/migrate")
 
 ## Practical Usage
 
-{migrate} currently only handles transitions between exactly two (2)
-time points. Under the hood, {migrate} finds the earliest & latest dates
-in the given *time* variable, and filters out any observations where the
-*time* value does not match those two dates.
+`migrate()` currently only handles transitions between exactly two (2)
+timepoints. Under the hood, `migrate()` finds the earliest & latest
+dates in the given *time* variable, and filters out any observations
+where the *time* value does not match those two dates.
 
-If you are writing a SQL query to get data to be used with {migrate},
+If you are writing a SQL query to get data to be used with `migrate()`,
 the query would likely look something like this:
 
 ``` r
@@ -81,6 +81,15 @@ the query would likely look something like this:
 # FROM my_database
 # WHERE Date IN ('2020-12-31', '2021-06-30')
 ```
+
+By default, `migrate()` drops observations that belong to IDs found at a
+single timepoint. However, users can define a *filler state* so that IDs
+with a single timepoint are not removed but rather migrated from or to
+this *filler state*. This allows for more flexible handling of such
+data, ensuring that no information is lost during the migration process.
+Check [Handle IDs with observations at a single
+timepoint](articles/migrate.html#handle-ids-with-observations-at-a-single-timepoint)
+for more information.
 
 ## Example
 
@@ -100,14 +109,14 @@ data("mock_credit")
 head(mock_credit[order(mock_credit$customer_id), ])   # sort by 'customer_id'
 ```
 
-| customer\_id   | date       | risk\_rating | principal\_balance |
-|:---------------|:-----------|:-------------|-------------------:|
-| Customer\_1001 | 2020-06-30 | A            |             915000 |
-| Customer\_1001 | 2020-09-30 | A            |            1328000 |
-| Customer\_1002 | 2020-06-30 | AAA          |             979000 |
-| Customer\_1002 | 2020-09-30 | AAA          |             354000 |
-| Customer\_1003 | 2020-06-30 | BBB          |            1400000 |
-| Customer\_1003 | 2020-09-30 | BBB          |             356000 |
+| customer_id   | date       | risk_rating | principal_balance |
+|:--------------|:-----------|:------------|------------------:|
+| Customer_1001 | 2020-06-30 | A           |            915000 |
+| Customer_1001 | 2020-09-30 | A           |           1328000 |
+| Customer_1002 | 2020-06-30 | AAA         |            979000 |
+| Customer_1002 | 2020-09-30 | AAA         |            354000 |
+| Customer_1003 | 2020-06-30 | BBB         |           1400000 |
+| Customer_1003 | 2020-09-30 | BBB         |            356000 |
 
 Note that an important feature of the `mock_credit` dataset is that
 there are exactly two (2) unique values in the `date` column variable;
@@ -128,9 +137,12 @@ migrated_df <- migrate(
   time = date, 
   state = risk_rating, 
 )
-#> === Migrating from: `2020-06-30` --> `2020-09-30` ===
+#> ℹ Migrating from 2020-06-30 to 2020-09-30
+```
+
+``` r
 head(migrated_df)
-#> # A tibble: 6 x 3
+#> # A tibble: 6 × 3
 #>   risk_rating_start risk_rating_end   prop
 #>   <ord>             <ord>            <dbl>
 #> 1 AAA               AAA             0.774 
@@ -145,9 +157,9 @@ To create the state migration matrix, use the `build_matrix()` function
 
 ``` r
 build_matrix(migrated_df)
-#> Using `risk_rating_start` as the 'state_start' column variable
-#> Using `risk_rating_end` as the 'state_end' column variable
-#> Using `prop` as the 'metric' column variable
+#> ℹ Using `risk_rating_start` as the 'state_start' column variable
+#> ℹ Using `risk_rating_end` as the 'state_end' column variable
+#> ℹ Using `prop` as the 'metric' column variable
 #>             AAA         AA          A        BBB         BB          B        CCC
 #> AAA 0.774193548 0.19354839 0.03225806 0.00000000 0.00000000 0.00000000 0.00000000
 #> AA  0.101123596 0.66292135 0.15730337 0.07865169 0.00000000 0.00000000 0.00000000
@@ -158,10 +170,10 @@ build_matrix(migrated_df)
 #> CCC 0.000000000 0.00000000 0.00000000 0.00000000 0.00000000 0.14285714 0.85714286
 ```
 
-Or, to do it all in one shot, use the `%>%`
+Or, to do it all in one shot, use the `|>`
 
 ``` r
-mock_credit %>% 
+mock_credit |> 
   migrate(
     id = customer_id, 
     time = date, 
@@ -169,7 +181,7 @@ mock_credit %>%
     metric = principal_balance, 
     percent = FALSE, 
     verbose = FALSE
-  ) %>% 
+  ) |>
   build_matrix(
     state_start = risk_rating_start, 
     state_end = risk_rating_end, 

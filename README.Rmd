@@ -23,7 +23,7 @@ devtools::load_all()
 [![lifecycle](https://img.shields.io/badge/lifecycle-stable-green.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![CRAN status](https://www.r-pkg.org/badges/version/migrate)](https://CRAN.R-project.org/package=migrate)
 [![metacran downloads](https://cranlogs.r-pkg.org/badges/migrate)](https://cran.r-project.org/package=migrate)
-[![R-CMD-check](https://github.com/mthomas-ketchbrook/migrate/workflows/R-CMD-check/badge.svg)](https://github.com/mthomas-ketchbrook/migrate/actions)
+[![R-CMD-check](https://github.com/ketchbrookanalytics/migrate/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ketchbrookanalytics/migrate/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 The goal of migrate is to provide credit analysts with an easy set of tools for building *state migration matrices* (also known as *"state transition matrices"*). 
@@ -61,9 +61,9 @@ devtools::install_github("mthomas-ketchbrook/migrate")
 
 ## Practical Usage
 
-{migrate} currently only handles transitions between exactly two (2) time points. Under the hood, {migrate} finds the earliest & latest dates in the given *time* variable, and filters out any observations where the *time* value does not match those two dates.
+`migrate()` currently only handles transitions between exactly two (2) timepoints. Under the hood, `migrate()` finds the earliest & latest dates in the given *time* variable, and filters out any observations where the *time* value does not match those two dates.
 
-If you are writing a SQL query to get data to be used with {migrate}, the query would likely look something like this:
+If you are writing a SQL query to get data to be used with `migrate()`, the query would likely look something like this:
 
 ```{r, eval = FALSE}
 # -- Get the *State* risk status and *Balance* dollar amount for each ID, at two distinct dates
@@ -72,6 +72,8 @@ If you are writing a SQL query to get data to be used with {migrate}, the query 
 # FROM my_database
 # WHERE Date IN ('2020-12-31', '2021-06-30')
 ```
+
+By default, `migrate()` drops observations that belong to IDs found at a single timepoint. However, users can define a *filler state* so that IDs with a single timepoint are not removed but rather migrated from or to this *filler state*. This allows for more flexible handling of such data, ensuring that no information is lost during the migration process. Check [Handle IDs with observations at a single timepoint](articles/migrate.html#handle-ids-with-observations-at-a-single-timepoint) for more information.
 
 ## Example
 
@@ -90,7 +92,7 @@ head(mock_credit[order(mock_credit$customer_id), ])   # sort by 'customer_id'
 ```
 
 ```{r data_tbl, echo = FALSE}
-head(mock_credit[order(mock_credit$customer_id), ]) %>% 
+head(mock_credit[order(mock_credit$customer_id), ]) |>
   knitr::kable(row.names = FALSE)
 ```
 
@@ -109,7 +111,6 @@ migrated_df <- migrate(
   time = date, 
   state = risk_rating, 
 )
-
 head(migrated_df)
 ```
 
@@ -118,9 +119,9 @@ To create the state migration matrix, use the `build_matrix()` function
 build_matrix(migrated_df)
 ```
 
-Or, to do it all in one shot, use the `%>%`
+Or, to do it all in one shot, use the `|>`
 ```{r pipe} 
-mock_credit %>% 
+mock_credit |> 
   migrate(
     id = customer_id, 
     time = date, 
@@ -128,7 +129,7 @@ mock_credit %>%
     metric = principal_balance, 
     percent = FALSE, 
     verbose = FALSE
-  ) %>% 
+  ) |>
   build_matrix(
     state_start = risk_rating_start, 
     state_end = risk_rating_end, 

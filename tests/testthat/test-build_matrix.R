@@ -12,7 +12,7 @@ mig <- migrate(
   verbose = FALSE
 )
 
-mat <- mig %>%
+mat <- mig |>
   build_matrix(
     state_start = risk_rating_start,
     state_end = risk_rating_end,
@@ -34,13 +34,13 @@ test_that("build_matrix() returns a `matrix` object", {
   # number of columns == number of unique ending states
   expect_equal(
     dim(mat)[1],   # rows
-    unique(mig$risk_rating_start) %>% length()
+    unique(mig$risk_rating_start) |> length()
   )
 
   # number of columns == number of unique ending states
   expect_equal(
     dim(mat)[2],   # columns
-    unique(mig$risk_rating_end) %>% length()
+    unique(mig$risk_rating_end) |> length()
   )
 
 })
@@ -138,7 +138,7 @@ test_that("build_matrix() outputs starting sums when `percent = FALSE`", {
   # the earliest time (assuming each ID has exactly 2 observations in the data)
   expect_equal(
 
-    mock_credit %>% dplyr::filter(date == min_time) %>% nrow(),
+    mock_credit |> dplyr::filter(date == min_time) |> nrow(),
 
     migrate(
       data = mock_credit,
@@ -147,20 +147,20 @@ test_that("build_matrix() outputs starting sums when `percent = FALSE`", {
       id = customer_id,
       percent = FALSE,
       verbose = FALSE
-    ) %>%
+    ) |>
       build_matrix(
         state_start = risk_rating_start,
         state_end = risk_rating_end,
         metric = count
-      ) %>% sum()
+      ) |> sum()
   )
 
   # similar behavior should take place when using a metric
   expect_equal(
 
-    mock_credit %>%
-      dplyr::filter(date == min_time) %>%
-      dplyr::pull(principal_balance) %>%
+    mock_credit |>
+      dplyr::filter(date == min_time) |>
+      dplyr::pull(principal_balance) |>
       sum(),
 
     migrate(
@@ -171,12 +171,12 @@ test_that("build_matrix() outputs starting sums when `percent = FALSE`", {
       metric = principal_balance,
       percent = FALSE,
       verbose = FALSE
-    ) %>%
+    ) |>
       build_matrix(
         state_start = risk_rating_start,
         state_end = risk_rating_end,
         metric = principal_balance
-      ) %>% sum()
+      ) |> sum()
 
   )
 
@@ -187,48 +187,48 @@ test_that("If build_matrix() guesses arguments, it does so carefully", {
 
   # multiple "start" columns
   expect_error(
-    mig %>%
-      dplyr::mutate(start_in_colname = as.factor("a")) %>%
+    mig |>
+      dplyr::mutate(start_in_colname = as.factor("a")) |>
       build_matrix(),
     regexp = "Multiple columns of type `factor` with the phrase \"start\""
   )
 
   # no "start" column
   expect_error(
-    mig %>%
-      dplyr::rename(risk_rating_begin = risk_rating_start) %>%
+    mig |>
+      dplyr::rename(risk_rating_begin = risk_rating_start) |>
       build_matrix(),
     regexp = "No columns of type `factor` with the phrase \"start\""
   )
 
   # multiple "end" columns
   expect_error(
-    mig %>%
-      dplyr::mutate(end_in_colname = as.factor("a")) %>%
+    mig |>
+      dplyr::mutate(end_in_colname = as.factor("a")) |>
       build_matrix(),
     regexp = "Multiple columns of type `factor` with the phrase \"end\""
   )
 
   # no "end" column
   expect_error(
-    mig %>%
-      dplyr::rename(risk_rating_final = risk_rating_end) %>%
+    mig |>
+      dplyr::rename(risk_rating_final = risk_rating_end) |>
       build_matrix(),
     regexp = "No columns of type `factor` with the phrase \"end\""
   )
 
   # multiple "metric" columns
   expect_error(
-    mig %>%
-      dplyr::mutate(metric_new = 1) %>%
+    mig |>
+      dplyr::mutate(metric_new = 1) |>
       build_matrix(),
     regexp = "Multiple columns of type `numeric`"
   )
 
   # no "metric" column
   expect_error(
-    mig %>%
-      dplyr::mutate(principal_balance = as.character(principal_balance)) %>%
+    mig |>
+      dplyr::mutate(principal_balance = as.character(principal_balance)) |>
       build_matrix(),
     regexp = "No columns of type `numeric`"
   )
