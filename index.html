@@ -5,7 +5,6 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="description" content='Tools to help convert credit risk data at two time points into traditional credit state migration (aka, "transition") matrices. At a higher level, migrate is intended to help an analyst understand how risk moved in their credit portfolio over a time interval. References to this methodology include: 1. Schuermann, T. (2008) &lt;doi:10.1002/9780470061596.risk0409&gt;. 2. Perederiy, V. (2017) &lt;arXiv:1708.00062&gt;.'>
 <title>Create Credit State Migration (Transition) Matrices • migrate</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -16,51 +15,42 @@
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/DM_Sans-0.4.9/font.css" rel="stylesheet">
-<!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js" integrity="sha512-7O5pXpc0oCRrxk8RUfDYFgn0nO1t+jLuIOQdOMRp4APB7uZ4vSjspzp5y6YDtDs4VzUSTbWzBFZ/LKJhnyFOKw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Create Credit State Migration (Transition) Matrices">
-<meta property="og:description" content='Tools to help convert credit risk data at two time points into traditional credit state migration (aka, "transition") matrices. At a higher level, migrate is intended to help an analyst understand how risk moved in their credit portfolio over a time interval. References to this methodology include: 1. Schuermann, T. (2008) &lt;doi:10.1002/9780470061596.risk0409&gt;. 2. Perederiy, V. (2017) &lt;arXiv:1708.00062&gt;.'>
+<link href="deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
+<link href="deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Create Credit State Migration (Transition) Matrices">
+<meta name="description" content='Tools to help convert credit risk data at two timepoints into traditional credit state migration (aka, "transition") matrices. At a higher level, migrate is intended to help an analyst understand how risk moved in their credit portfolio over a time interval. References to this methodology include: 1. Schuermann, T. (2008) &lt;doi:10.1002/9780470061596.risk0409&gt;. 2. Perederiy, V. (2017) &lt;arXiv:1708.00062&gt;.'>
+<meta property="og:description" content='Tools to help convert credit risk data at two timepoints into traditional credit state migration (aka, "transition") matrices. At a higher level, migrate is intended to help an analyst understand how risk moved in their credit portfolio over a time interval. References to this methodology include: 1. Schuermann, T. (2008) &lt;doi:10.1002/9780470061596.risk0409&gt;. 2. Perederiy, V. (2017) &lt;arXiv:1708.00062&gt;.'>
 <meta property="og:image" content="https://ketchbrookanalytics.github.io/migrate/logo.png">
-<!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
-<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]-->
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
-    
 
-    <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light" data-bs-theme="light"><div class="container">
-    
+
+    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+
     <a class="navbar-brand me-2" href="index.html">migrate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
-    
+
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item">
-  <a class="nav-link" href="articles/migrate.html">Get started</a>
-</li>
-<li class="nav-item">
-  <a class="nav-link" href="reference/index.html">Reference</a>
-</li>
-<li class="nav-item">
-  <a class="nav-link" href="news/index.html">Changelog</a>
-</li>
+<li class="nav-item"><a class="nav-link" href="articles/migrate.html">Get started</a></li>
+<li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
-<form class="form-inline my-2 my-lg-0" role="search">
-        <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="search.json" id="search-input" placeholder="Search for" autocomplete="off">
-</form>
-
-      <ul class="navbar-nav"></ul>
+<ul class="navbar-nav">
+<li class="nav-item"><form class="form-inline" role="search">
+ <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
+</form></li>
+      </ul>
 </div>
 
-    
+
   </div>
 </nav><div class="container template-home">
 <div class="row">
@@ -101,14 +91,15 @@
 <div class="section level2">
 <h2 id="practical-usage">Practical Usage<a class="anchor" aria-label="anchor" href="#practical-usage"></a>
 </h2>
-<p>{migrate} currently only handles transitions between exactly two (2) time points. Under the hood, {migrate} finds the earliest &amp; latest dates in the given <em>time</em> variable, and filters out any observations where the <em>time</em> value does not match those two dates.</p>
-<p>If you are writing a SQL query to get data to be used with {migrate}, the query would likely look something like this:</p>
+<p><code><a href="reference/migrate.html">migrate()</a></code> currently only handles transitions between exactly two (2) timepoints. Under the hood, <code><a href="reference/migrate.html">migrate()</a></code> finds the earliest &amp; latest dates in the given <em>time</em> variable, and filters out any observations where the <em>time</em> value does not match those two dates.</p>
+<p>If you are writing a SQL query to get data to be used with <code><a href="reference/migrate.html">migrate()</a></code>, the query would likely look something like this:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># -- Get the *State* risk status and *Balance* dollar amount for each ID, at two distinct dates</span></span>
 <span></span>
 <span><span class="co"># SELECT ID, Date, State, Balance </span></span>
 <span><span class="co"># FROM my_database</span></span>
 <span><span class="co"># WHERE Date IN ('2020-12-31', '2021-06-30')</span></span></code></pre></div>
+<p>By default, <code><a href="reference/migrate.html">migrate()</a></code> drops observations that belong to IDs found at a single timepoint. However, users can define a <em>filler state</em> so that IDs with a single timepoint are not removed but rather migrated from or to this <em>filler state</em>. This allows for more flexible handling of such data, ensuring that no information is lost during the migration process. Check <a href="articles/migrate.html#handle-ids-with-observations-at-a-single-timepoint">Handle IDs with observations at a single timepoint</a> for more information.</p>
 </div>
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
@@ -179,9 +170,10 @@
 <span>  time <span class="op">=</span> <span class="va">date</span>, </span>
 <span>  state <span class="op">=</span> <span class="va">risk_rating</span>, </span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; === Migrating from: `2020-06-30` --&gt; `2020-09-30` ===</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">migrated_df</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 6 x 3</span></span>
+<span><span class="co">#&gt; ℹ Migrating from 2020-06-30 to 2020-09-30</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">migrated_df</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 6 × 3</span></span>
 <span><span class="co">#&gt;   risk_rating_start risk_rating_end   prop</span></span>
 <span><span class="co">#&gt;   &lt;ord&gt;             &lt;ord&gt;            &lt;dbl&gt;</span></span>
 <span><span class="co">#&gt; 1 AAA               AAA             0.774 </span></span>
@@ -191,11 +183,11 @@
 <span><span class="co">#&gt; 5 AAA               BB              0     </span></span>
 <span><span class="co">#&gt; 6 AAA               B               0</span></span></code></pre></div>
 <p>To create the state migration matrix, use the <code><a href="reference/build_matrix.html">build_matrix()</a></code> function</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/build_matrix.html">build_matrix</a></span><span class="op">(</span><span class="va">migrated_df</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Using `risk_rating_start` as the 'state_start' column variable</span></span>
-<span><span class="co">#&gt; Using `risk_rating_end` as the 'state_end' column variable</span></span>
-<span><span class="co">#&gt; Using `prop` as the 'metric' column variable</span></span>
+<span><span class="co">#&gt; ℹ Using `risk_rating_start` as the 'state_start' column variable</span></span>
+<span><span class="co">#&gt; ℹ Using `risk_rating_end` as the 'state_end' column variable</span></span>
+<span><span class="co">#&gt; ℹ Using `prop` as the 'metric' column variable</span></span>
 <span><span class="co">#&gt;             AAA         AA          A        BBB         BB          B        CCC</span></span>
 <span><span class="co">#&gt; AAA 0.774193548 0.19354839 0.03225806 0.00000000 0.00000000 0.00000000 0.00000000</span></span>
 <span><span class="co">#&gt; AA  0.101123596 0.66292135 0.15730337 0.07865169 0.00000000 0.00000000 0.00000000</span></span>
@@ -204,9 +196,9 @@
 <span><span class="co">#&gt; BB  0.000000000 0.00000000 0.00000000 0.11392405 0.63291139 0.16455696 0.08860759</span></span>
 <span><span class="co">#&gt; B   0.000000000 0.00000000 0.00000000 0.01388889 0.09722222 0.62500000 0.26388889</span></span>
 <span><span class="co">#&gt; CCC 0.000000000 0.00000000 0.00000000 0.00000000 0.00000000 0.14285714 0.85714286</span></span></code></pre></div>
-<p>Or, to do it all in one shot, use the <code>%&gt;%</code></p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mock_credit</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span> </span>
+<p>Or, to do it all in one shot, use the <code>|&gt;</code></p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mock_credit</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="reference/migrate.html">migrate</a></span><span class="op">(</span></span>
 <span>    id <span class="op">=</span> <span class="va">customer_id</span>, </span>
 <span>    time <span class="op">=</span> <span class="va">date</span>, </span>
@@ -214,7 +206,7 @@
 <span>    metric <span class="op">=</span> <span class="va">principal_balance</span>, </span>
 <span>    percent <span class="op">=</span> <span class="cn">FALSE</span>, </span>
 <span>    verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span>  <span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/build_matrix.html">build_matrix</a></span><span class="op">(</span></span>
 <span>    state_start <span class="op">=</span> <span class="va">risk_rating_start</span>, </span>
 <span>    state_end <span class="op">=</span> <span class="va">risk_rating_end</span>, </span>
@@ -269,7 +261,7 @@
 <li><a href="https://lifecycle.r-lib.org/articles/stages.html#stable" class="external-link"><img src="https://img.shields.io/badge/lifecycle-stable-green.svg" alt="lifecycle"></a></li>
 <li><a href="https://CRAN.R-project.org/package=migrate" class="external-link"><img src="https://www.r-pkg.org/badges/version/migrate" alt="CRAN status"></a></li>
 <li><a href="https://cran.r-project.org/package=migrate" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/migrate" alt="metacran downloads"></a></li>
-<li><a href="https://github.com/mthomas-ketchbrook/migrate/actions" class="external-link"><img src="https://github.com/mthomas-ketchbrook/migrate/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://github.com/ketchbrookanalytics/migrate/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/ketchbrookanalytics/migrate/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
 </ul>
 </div>
 
@@ -282,15 +274,15 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
     </footer>
 </div>
 
-  
 
-  
+
+
 
   </body>
 </html>

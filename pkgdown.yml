@@ -1,10 +1,9 @@
 pandoc: 3.1.11
-pkgdown: 2.0.9
+pkgdown: 2.1.0
 pkgdown_sha: ~
 articles:
   migrate: migrate.html
-last_built: 2024-07-02T13:26Z
+last_built: 2024-07-09T17:15Z
 urls:
   reference: https://ketchbrookanalytics.github.io/migrate/reference
   article: https://ketchbrookanalytics.github.io/migrate/articles
-
