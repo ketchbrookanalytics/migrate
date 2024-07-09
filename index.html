@@ -61,18 +61,17 @@
 </div>
 <!-- badges: start -->
 
-<p>The goal of migrate is to provide credit analysts with an easy set of tools for building <em>state migration matrices</em> (also known as <em>“state transition matrices”</em>).</p>
+<p>The goal of {migrate} is to provide users with an easy set of tools for building <em>state transition matrices</em>.</p>
 <p><br></p>
 <p><img src="reference/figures/gt_tbl.png"></p>
 <div class="section level2">
 <h2 id="methodology">Methodology<a class="anchor" aria-label="anchor" href="#methodology"></a>
 </h2>
-<p><code>migrate</code> provides an easy way to calculate absolute or percentage migration within a credit portfolio. The above image shows a typical credit migration matrix using the <em>absolute</em> approach; each cell in the grid represents the total balance in the portfolio at 2020-06-30 that started at the Risk Rating represented on the left-hand vertical axis and ended (at 2020-09-30) at the Risk Rating represented on the upper horizontal axis of the matrix. For example, $6.58M moved from a Risk Rating <strong>AAA</strong> at 2020-06-30 to a Risk Rating <strong>AA</strong> at 2020-09-30.</p>
-<p>While the above, <em>absolute</em>, migration example is typically more of a reporting function, the <em>percentage</em> (or probabilistic) methodology is often more of a statistical credit risk modeling exercise. Currently, this package only supports the simple “cohort” methodology. This estimates the probability of moving from state <em>i</em> to state <em>j</em> in a single time step, echoing a Markov process. We can visualize this in a matrix, for a credit portfolio with <em>N</em> unique, ordinal states:</p>
+<p>{migrate} provides an easy way to calculate absolute or percentage migration within a credit portfolio. The above image shows a typical credit migration matrix using the <em>absolute</em> approach; each cell in the grid represents the total balance in the portfolio at 2020-06-30 that started at the Risk Rating represented on the left-hand vertical axis and ended (at 2020-09-30) at the Risk Rating represented on the upper horizontal axis of the matrix. For example, $6.58M moved from a Risk Rating <strong>AAA</strong> at 2020-06-30 to a Risk Rating <strong>AA</strong> at 2020-09-30.</p>
+<p>While the above, <em>absolute</em>, migration example is typically more of a reporting function, the <em>percentage</em> (or probabilistic) methodology is often more of a statistical modeling exercise, often used in credit portfolio risk management. Currently, this package only supports the simple “cohort” methodology. This estimates the probability of moving from state <em>i</em> to state <em>j</em> in a single time step, echoing a Markov process. We can visualize this in a matrix, for a credit portfolio with <em>N</em> unique, ordinal states:</p>
 <p><img src="reference/figures/markov_matrix.png"></p>
 <div class="section level3">
-<h3 id="future-plans-for-migrate">Future Plans for <code>migrate</code>
-<a class="anchor" aria-label="anchor" href="#future-plans-for-migrate"></a>
+<h3 id="future-plans-for-migrate">Future Plans for {migrate}<a class="anchor" aria-label="anchor" href="#future-plans-for-migrate"></a>
 </h3>
 <p>Future development plans for this package include building functionality for the more complex <strong>duration</strong>/<strong>hazard</strong> methodology, including both the <em>time-homogeneous</em> and <em>non-homogeneous</em> implementations.</p>
 </div>
@@ -80,23 +79,23 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the released version of migrate from <a href="https://CRAN.R-project.org" class="external-link">CRAN</a> with:</p>
+<p>You can install the released version of {migrate} from <a href="https://CRAN.R-project.org" class="external-link">CRAN</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"migrate"</span><span class="op">)</span></span></code></pre></div>
 <p>And the development version from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"mthomas-ketchbrook/migrate"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"ketchbrookanalytics/migrate"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="practical-usage">Practical Usage<a class="anchor" aria-label="anchor" href="#practical-usage"></a>
 </h2>
-<p><code><a href="reference/migrate.html">migrate()</a></code> currently only handles transitions between exactly two (2) timepoints. Under the hood, <code><a href="reference/migrate.html">migrate()</a></code> finds the earliest &amp; latest dates in the given <em>time</em> variable, and filters out any observations where the <em>time</em> value does not match those two dates.</p>
+<p>{migrate} currently only handles transitions between exactly two (2) timepoints. Under the hood, <code><a href="reference/migrate.html">migrate()</a></code> finds the earliest &amp; latest dates in the given <em>time</em> variable, and filters out any observations where the <em>time</em> value does not match those two dates.</p>
 <p>If you are writing a SQL query to get data to be used with <code><a href="reference/migrate.html">migrate()</a></code>, the query would likely look something like this:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># -- Get the *State* risk status and *Balance* dollar amount for each ID, at two distinct dates</span></span>
 <span></span>
-<span><span class="co"># SELECT ID, Date, State, Balance </span></span>
+<span><span class="co"># SELECT ID, Date, State, Balance</span></span>
 <span><span class="co"># FROM my_database</span></span>
 <span><span class="co"># WHERE Date IN ('2020-12-31', '2021-06-30')</span></span></code></pre></div>
 <p>By default, <code><a href="reference/migrate.html">migrate()</a></code> drops observations that belong to IDs found at a single timepoint. However, users can define a <em>filler state</em> so that IDs with a single timepoint are not removed but rather migrated from or to this <em>filler state</em>. This allows for more flexible handling of such data, ensuring that no information is lost during the migration process. Check <a href="articles/migrate.html#handle-ids-with-observations-at-a-single-timepoint">Handle IDs with observations at a single timepoint</a> for more information.</p>
@@ -104,7 +103,7 @@
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
-<p>First, load the package &amp; the mock dataset (as a data frame) using <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code></p>
+<p>First, load the package using <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code></p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ketchbrookanalytics/migrate" class="external-link">migrate</a></span><span class="op">)</span></span></code></pre></div>
 <p>The package has a built-in mock dataset, which can be loaded into the environment like so:</p>
@@ -158,17 +157,17 @@
 </tr>
 </tbody>
 </table>
-<p>Note that an important feature of the <code>mock_credit</code> dataset is that there are exactly two (2) unique values in the <code>date</code> column variable; if the <code>time</code> argument passed to <code>migrate</code> has more than two (2) unique values, the function will throw an error.</p>
+<p>Note that an important feature of the <code>mock_credit</code> dataset is that there are exactly two (2) unique values in the <code>date</code> column variable; if the <code>time</code> argument passed to <code><a href="reference/migrate.html">migrate()</a></code> has more than two (2) unique values, the function will throw an error.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">mock_credit</span><span class="op">$</span><span class="va">date</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "2020-06-30" "2020-09-30"</span></span></code></pre></div>
 <p>To summarize the migration within the data, use the <code><a href="reference/migrate.html">migrate()</a></code> function</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">migrated_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/migrate.html">migrate</a></span><span class="op">(</span></span>
-<span>  data <span class="op">=</span> <span class="va">mock_credit</span>, </span>
-<span>  id <span class="op">=</span> <span class="va">customer_id</span>, </span>
-<span>  time <span class="op">=</span> <span class="va">date</span>, </span>
-<span>  state <span class="op">=</span> <span class="va">risk_rating</span>, </span>
+<span>  data <span class="op">=</span> <span class="va">mock_credit</span>,</span>
+<span>  id <span class="op">=</span> <span class="va">customer_id</span>,</span>
+<span>  time <span class="op">=</span> <span class="va">date</span>,</span>
+<span>  state <span class="op">=</span> <span class="va">risk_rating</span>,</span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Migrating from 2020-06-30 to 2020-09-30</span></span></code></pre></div>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
@@ -182,7 +181,7 @@
 <span><span class="co">#&gt; 4 AAA               BBB             0     </span></span>
 <span><span class="co">#&gt; 5 AAA               BB              0     </span></span>
 <span><span class="co">#&gt; 6 AAA               B               0</span></span></code></pre></div>
-<p>To create the state migration matrix, use the <code><a href="reference/build_matrix.html">build_matrix()</a></code> function</p>
+<p>To create the state transition matrix, use the <code><a href="reference/build_matrix.html">build_matrix()</a></code> function</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/build_matrix.html">build_matrix</a></span><span class="op">(</span><span class="va">migrated_df</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Using `risk_rating_start` as the 'state_start' column variable</span></span>
@@ -198,18 +197,18 @@
 <span><span class="co">#&gt; CCC 0.000000000 0.00000000 0.00000000 0.00000000 0.00000000 0.14285714 0.85714286</span></span></code></pre></div>
 <p>Or, to do it all in one shot, use the <code>|&gt;</code></p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mock_credit</span> <span class="op">|&gt;</span> </span>
+<code class="sourceCode R"><span><span class="va">mock_credit</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/migrate.html">migrate</a></span><span class="op">(</span></span>
-<span>    id <span class="op">=</span> <span class="va">customer_id</span>, </span>
-<span>    time <span class="op">=</span> <span class="va">date</span>, </span>
-<span>    state <span class="op">=</span> <span class="va">risk_rating</span>, </span>
-<span>    metric <span class="op">=</span> <span class="va">principal_balance</span>, </span>
-<span>    percent <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>    id <span class="op">=</span> <span class="va">customer_id</span>,</span>
+<span>    time <span class="op">=</span> <span class="va">date</span>,</span>
+<span>    state <span class="op">=</span> <span class="va">risk_rating</span>,</span>
+<span>    metric <span class="op">=</span> <span class="va">principal_balance</span>,</span>
+<span>    percent <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>    verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/build_matrix.html">build_matrix</a></span><span class="op">(</span></span>
-<span>    state_start <span class="op">=</span> <span class="va">risk_rating_start</span>, </span>
-<span>    state_end <span class="op">=</span> <span class="va">risk_rating_end</span>, </span>
+<span>    state_start <span class="op">=</span> <span class="va">risk_rating_start</span>,</span>
+<span>    state_end <span class="op">=</span> <span class="va">risk_rating_end</span>,</span>
 <span>    metric <span class="op">=</span> <span class="va">principal_balance</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="co">#&gt;          AAA       AA        A      BBB       BB        B      CCC</span></span>

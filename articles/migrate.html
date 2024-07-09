@@ -66,39 +66,38 @@
     
     
 <div class="section level2">
-<h2 id="using-migrate">Using <code>migrate</code><a class="anchor" aria-label="anchor" href="#using-migrate"></a>
+<h2 id="using-migrate">Using {migrate}<a class="anchor" aria-label="anchor" href="#using-migrate"></a>
 </h2>
 <p>This package is intended to serve as a set of tools to help convert
-credit risk data at two timepoints into traditional credit state
-migration (aka, “transition”) matrices. At a higher level,
-<code>migrate</code> is intended to help an analyst understand how risk
-moved in their credit portfolio over a time interval.</p>
+credit risk data at two timepoints into traditional state transition
+matrices. At a higher level, {migrate} is intended to help an analyst
+understand how risk moved in their credit portfolio over a time
+interval.</p>
 </div>
 <div class="section level2">
 <h2 id="background">Background<a class="anchor" aria-label="anchor" href="#background"></a>
 </h2>
-<p>One of the more difficult aspects of making a credit state migration
-matrix in R (or Python, for that matter) is the fact that the output
-doesn’t satisfy the structure of a traditional data frame object.
-Rather, the output needs to be a <em>matrix</em>, which is a data
-structure that R does support. In the past, there has been difficulty
-converting a matrix to something more visual-friendly. More recently,
-however, tools like the <a href="https://cran.r-project.org/package=kableExtra" class="external-link">kableExtra</a> and
+<p>One of the more difficult aspects of making a state migration matrix
+in R (or Python, for that matter) is the fact that the output doesn’t
+satisfy the structure of a traditional data frame object. Rather, the
+output needs to be a <em>matrix</em>, which is a data structure that R
+does support. In the past, there has been difficulty converting a matrix
+to something more visual-friendly. More recently, however, tools like
+the <a href="https://cran.r-project.org/package=kableExtra" class="external-link">kableExtra</a> and
 <a href="https://cran.r-project.org/package=gt" class="external-link">gt</a> packages allow us
 to present visually appealing output that extends the structure of a
-data frame. Using the matrix-style output of <code>migrate</code>’s
-functions with a visual formatting package such as the two mentioned
-above will hopefully help analysts streamline the presentation of their
-credit portfolio’s state migration matrices to an audience.</p>
+data frame. Using the matrix-style output of {migrate}’s functions with
+a visual formatting package such as the two mentioned above will
+hopefully help analysts streamline the presentation of their credit
+portfolio’s state migration matrices to an audience.</p>
 </div>
 <div class="section level2">
 <h2 id="getting-started">Getting Started<a class="anchor" aria-label="anchor" href="#getting-started"></a>
 </h2>
-<p>If you haven’t done so already, first install <code>migrate</code>
-with the instructions in the <a href="https://github.com/mthomas-ketchbrook/migrate#Installation" class="external-link">README
+<p>If you haven’t done so already, first install {migrate} with the
+instructions in the <a href="https://github.com/mthomas-ketchbrook/migrate#Installation" class="external-link">README
 section</a>.</p>
-<p>First, load the package &amp; the mock dataset (as a data frame)
-using <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code></p>
+<p>First, load the package using <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code></p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ketchbrookanalytics/migrate" class="external-link">migrate</a></span><span class="op">)</span></span></code></pre></div>
 <p>The package has a built-in mock dataset, which can be loaded into the
@@ -156,8 +155,8 @@ environment like so:</p>
 <p>Note that an important feature of the <code>mock_credit</code>
 dataset is that there are exactly two (2) unique values in the
 <code>date</code> column variable; if the <code>time</code> argument
-passed to <code>migrate</code> has more than two (2) unique values, the
-function will throw an error.</p>
+passed to <code><a href="../reference/migrate.html">migrate()</a></code> has more than two (2) unique values,
+the function will throw an error.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">mock_credit</span><span class="op">$</span><span class="va">date</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "2020-06-30" "2020-09-30"</span></span></code></pre></div>
@@ -165,10 +164,10 @@ function will throw an error.</p>
 <code><a href="../reference/migrate.html">migrate()</a></code> function</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">migrated_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/migrate.html">migrate</a></span><span class="op">(</span></span>
-<span>  data <span class="op">=</span> <span class="va">mock_credit</span>, </span>
-<span>  id <span class="op">=</span> <span class="va">customer_id</span>, </span>
-<span>  time <span class="op">=</span> <span class="va">date</span>, </span>
-<span>  state <span class="op">=</span> <span class="va">risk_rating</span>, </span>
+<span>  data <span class="op">=</span> <span class="va">mock_credit</span>,</span>
+<span>  id <span class="op">=</span> <span class="va">customer_id</span>,</span>
+<span>  time <span class="op">=</span> <span class="va">date</span>,</span>
+<span>  state <span class="op">=</span> <span class="va">risk_rating</span>,</span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Migrating from 2020-06-30 to 2020-09-30</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">migrated_df</span><span class="op">)</span></span>
@@ -181,7 +180,7 @@ function will throw an error.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> AAA               BBB             0     </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> AAA               BB              0     </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> AAA               B               0</span></span></code></pre></div>
-<p>To create the state migration matrix, use the
+<p>To create the state transition matrix, use the
 <code><a href="../reference/build_matrix.html">build_matrix()</a></code> function</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/build_matrix.html">build_matrix</a></span><span class="op">(</span><span class="va">migrated_df</span><span class="op">)</span></span>
@@ -200,16 +199,16 @@ function will throw an error.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mock_credit</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/migrate.html">migrate</a></span><span class="op">(</span></span>
-<span>    id <span class="op">=</span> <span class="va">customer_id</span>, </span>
-<span>    time <span class="op">=</span> <span class="va">date</span>, </span>
-<span>    state <span class="op">=</span> <span class="va">risk_rating</span>, </span>
-<span>    metric <span class="op">=</span> <span class="va">principal_balance</span>, </span>
-<span>    percent <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>    id <span class="op">=</span> <span class="va">customer_id</span>,</span>
+<span>    time <span class="op">=</span> <span class="va">date</span>,</span>
+<span>    state <span class="op">=</span> <span class="va">risk_rating</span>,</span>
+<span>    metric <span class="op">=</span> <span class="va">principal_balance</span>,</span>
+<span>    percent <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>    verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/build_matrix.html">build_matrix</a></span><span class="op">(</span></span>
-<span>    state_start <span class="op">=</span> <span class="va">risk_rating_start</span>, </span>
-<span>    state_end <span class="op">=</span> <span class="va">risk_rating_end</span>, </span>
+<span>    state_start <span class="op">=</span> <span class="va">risk_rating_start</span>,</span>
+<span>    state_end <span class="op">=</span> <span class="va">risk_rating_end</span>,</span>
 <span>    metric <span class="op">=</span> <span class="va">principal_balance</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="co">#&gt;          AAA       AA        A      BBB       BB        B      CCC</span></span>
@@ -232,7 +231,7 @@ with the following characteristics:</p>
 <li>10 customers have a value only at the second timepoint</li>
 </ul>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mock_credit_with_missing</span> <span class="op">&lt;-</span> <span class="va">mock_credit</span> <span class="op">|&gt;</span> </span>
+<code class="sourceCode R"><span><span class="va">mock_credit_with_missing</span> <span class="op">&lt;-</span> <span class="va">mock_credit</span> <span class="op">|&gt;</span></span>
 <span>  <span class="co"># Remove the value at the first timepoint for 10 customers</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice</a></span><span class="op">(</span><span class="op">-</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="co"># Remove the value at the last timepoint for 20 customers</span></span>
@@ -248,17 +247,17 @@ behavior through a warning:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">migrated_data_without_fill_state</span> <span class="op">&lt;-</span> <span class="va">mock_credit_with_missing</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/migrate.html">migrate</a></span><span class="op">(</span></span>
-<span>    id <span class="op">=</span> <span class="va">customer_id</span>, </span>
-<span>    time <span class="op">=</span> <span class="va">date</span>, </span>
-<span>    state <span class="op">=</span> <span class="va">risk_rating</span>, </span>
-<span>    percent <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>    id <span class="op">=</span> <span class="va">customer_id</span>,</span>
+<span>    time <span class="op">=</span> <span class="va">date</span>,</span>
+<span>    state <span class="op">=</span> <span class="va">risk_rating</span>,</span>
+<span>    percent <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>    verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: <span style="color: #BBBB00;">!</span> Removed 30 observations due to missingness or IDs only existing at one `time` value</span></span></code></pre></div>
 <p>Notice that only 470 customers have been migrated:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">migrated_data_without_fill_state</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">count</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<code class="sourceCode R"><span><span class="va">migrated_data_without_fill_state</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">count</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 470</span></span></code></pre></div>
 <p>You can use <code><a href="../reference/migrate.html">migrate()</a></code>’s <code>fill_state</code> argument
@@ -272,11 +271,11 @@ information about the IDs with missing timepoints:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">migrated_data_with_fill_state</span> <span class="op">&lt;-</span> <span class="va">mock_credit_with_missing</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/migrate.html">migrate</a></span><span class="op">(</span></span>
-<span>    id <span class="op">=</span> <span class="va">customer_id</span>, </span>
-<span>    time <span class="op">=</span> <span class="va">date</span>, </span>
+<span>    id <span class="op">=</span> <span class="va">customer_id</span>,</span>
+<span>    time <span class="op">=</span> <span class="va">date</span>,</span>
 <span>    state <span class="op">=</span> <span class="va">risk_rating</span>,</span>
 <span>    fill_state <span class="op">=</span> <span class="st">"No Rating"</span>,</span>
-<span>    percent <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>    percent <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>    verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Migrating from 2020-06-30 to 2020-09-30</span></span>
@@ -285,8 +284,8 @@ information about the IDs with missing timepoints:</p>
 <span><span class="co">#&gt;   • Migrating 10 IDs with missing start timepoint from new class 'No Rating'</span></span></code></pre></div>
 <p>Check that 500 customers were migrated:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">migrated_data_with_fill_state</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">count</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<code class="sourceCode R"><span><span class="va">migrated_data_with_fill_state</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">count</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 500</span></span></code></pre></div>
 <p>So far we have been using <code>count</code> as the metric to easily
@@ -296,17 +295,17 @@ following code provides an example migration that leverages
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mock_credit_with_missing</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/migrate.html">migrate</a></span><span class="op">(</span></span>
-<span>    id <span class="op">=</span> <span class="va">customer_id</span>, </span>
-<span>    time <span class="op">=</span> <span class="va">date</span>, </span>
-<span>    state <span class="op">=</span> <span class="va">risk_rating</span>, </span>
-<span>    metric <span class="op">=</span> <span class="va">principal_balance</span>, </span>
+<span>    id <span class="op">=</span> <span class="va">customer_id</span>,</span>
+<span>    time <span class="op">=</span> <span class="va">date</span>,</span>
+<span>    state <span class="op">=</span> <span class="va">risk_rating</span>,</span>
+<span>    metric <span class="op">=</span> <span class="va">principal_balance</span>,</span>
 <span>    fill_state <span class="op">=</span> <span class="st">"No Rating"</span>,</span>
-<span>    percent <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>    percent <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>    verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/build_matrix.html">build_matrix</a></span><span class="op">(</span></span>
-<span>    state_start <span class="op">=</span> <span class="va">risk_rating_start</span>, </span>
-<span>    state_end <span class="op">=</span> <span class="va">risk_rating_end</span>, </span>
+<span>    state_start <span class="op">=</span> <span class="va">risk_rating_start</span>,</span>
+<span>    state_end <span class="op">=</span> <span class="va">risk_rating_end</span>,</span>
 <span>    metric <span class="op">=</span> <span class="va">principal_balance</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="co">#&gt;                AAA       AA        A      BBB       BB        B      CCC No Rating</span></span>
