@@ -137,7 +137,7 @@ time_message <- function(times) {
 
 
 # Remove any NA values across all columns; this will drop observations found
-# at only a single time point, unless the `fill_state` argument is *not* NULL
+# at only a single timepoint, unless the `fill_state` argument is *not* NULL
 drop_missing_timepoints <- function(data) {
 
   out <- data |>
@@ -218,7 +218,7 @@ migrate_percent <- function(data, state_start_name, metric_name) {
 #'   to/from. If left null, `migrate()` will attempt to use the first column
 #'   variable from the data frame provided in the `data` argument.
 #' @param time The column variable of in the `data` data frame representing the
-#'   time point (e.g., a Date) of each observation; this column should contain
+#'   timepoint (e.g., a Date) of each observation; this column should contain
 #'   two unique values (migration from Time A to Time B)
 #' @param state The column variable of the `data` data frame argument that
 #'   contains the credit risk state values.
@@ -408,7 +408,7 @@ migrate <- function(data, id, time, state,
     )
 
   # Remove any NA values across all columns; this will drop observations found
-  # at only a single time point, unless the `fill_state` argument is *not* NULL
+  # at only a single timepoint, unless the `fill_state` argument is *not* NULL
   if (nrow(tidyr::drop_na(data)) < nrow(data)) {
 
     data <- drop_missing_timepoints(data)
