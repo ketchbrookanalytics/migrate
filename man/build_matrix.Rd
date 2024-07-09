@@ -2,7 +2,7 @@
 % Please edit documentation in R/build_matrix.R
 \name{build_matrix}
 \alias{build_matrix}
-\title{Build a migration (transition) matrix}
+\title{Build a state migration (transition) matrix}
 \usage{
 build_matrix(data, state_start = NULL, state_end = NULL, metric = NULL)
 }
@@ -34,15 +34,15 @@ and ending credit risk state period was computed.}
 A matrix object, where the first (row) dimension represents the starting
 credit risk state, the second (column) dimension represents the ending credit
 risk state, and the values within the matrix represent the transitioned
-amount based upon the values in the \code{metric} continuous column variable from
+amount based upon the values in the \code{metric} numeric column variable from
 the \code{data} data frame.
 
 Note: A matrix object can be coerced to a data frame using \code{as.data.frame()}.
 }
 \description{
-\code{build_matrix()} creates a credit migration (i.e., "transition") matrix from
-summarized data representing each credit risk state & a continuous metric
-at two distinct points in time.
+\code{build_matrix()} creates a state transition matrix from summarized data (i.e.,
+a data frame returned by \code{migrate()}) representing each unique combination
+of beginning & ending states and a numeric metric.
 }
 \examples{
 # Let `build_matrix()` guess which column variables represent `state_start`,

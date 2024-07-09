@@ -1,9 +1,9 @@
-#' Build a migration (transition) matrix
+#' Build a state migration (transition) matrix
 #'
 #' @description
-#' `build_matrix()` creates a credit migration (i.e., "transition") matrix from
-#'   summarized data representing each credit risk state & a continuous metric
-#'   at two distinct points in time.
+#' `build_matrix()` creates a state transition matrix from summarized data (i.e.,
+#'   a data frame returned by `migrate()`) representing each unique combination
+#'   of beginning & ending states and a numeric metric.
 #'
 #' @param data A data frame or data frame extension (e.g., a tibble or
 #'   data.table) containing a minimum of three (3) column variables representing
@@ -29,7 +29,7 @@
 #' A matrix object, where the first (row) dimension represents the starting
 #' credit risk state, the second (column) dimension represents the ending credit
 #' risk state, and the values within the matrix represent the transitioned
-#' amount based upon the values in the `metric` continuous column variable from
+#' amount based upon the values in the `metric` numeric column variable from
 #' the `data` data frame.
 #'
 #' Note: A matrix object can be coerced to a data frame using `as.data.frame()`.

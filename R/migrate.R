@@ -90,7 +90,7 @@ coerce_factor <- function(data, state_name) {
         "!" = glue::glue("To ensure that your output is ordered correctly, convert the `{ state_name }` column variable in your data frame to an ordered factor before passing to `migrate()`")
       )
     )
-    
+
     data <- data |>
       dplyr::mutate("{ state_name }" := as.factor(state_vec))
 
@@ -202,7 +202,7 @@ migrate_percent <- function(data, state_start_name, metric_name) {
 #' Summarize the migration of a data frame
 #'
 #' @description
-#' `migrate()` summarizes the transition amount (or percentage) of a continuous
+#' `migrate()` summarizes the transition amount (or percentage) of a numeric
 #' variable from each beginning credit risk state category to each ending credit
 #' risk state, given a data frame input.
 #'
@@ -350,10 +350,10 @@ migrate <- function(data, id, time, state,
           names_from = {{ time }},
           values_from = {{ time }}
         )
-  
+
       n_missing_start <- sum(is.na(data_wide[[2]]))
       n_missing_end <- sum(is.na(data_wide[[3]]))
-    
+
       n_missing <- n_missing_start + n_missing_end
 
       fill_state_class_type <- ifelse(fill_state_is_new, "new", "existing")

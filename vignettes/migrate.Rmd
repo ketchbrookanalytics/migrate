@@ -18,19 +18,19 @@ knitr::opts_chunk$set(
 library(migrate)
 ```
 
-## Using `migrate`
+## Using {migrate}
 
-This package is intended to serve as a set of tools to help convert credit risk data at two timepoints into traditional credit state migration (aka, "transition") matrices. At a higher level, `migrate` is intended to help an analyst understand how risk moved in their credit portfolio over a time interval.
+This package is intended to serve as a set of tools to help convert credit risk data at two timepoints into traditional state transition matrices. At a higher level, {migrate} is intended to help an analyst understand how risk moved in their credit portfolio over a time interval.
 
 ## Background
 
-One of the more difficult aspects of making a credit state migration matrix in R (or Python, for that matter) is the fact that the output doesn't satisfy the structure of a traditional data frame object. Rather, the output needs to be a *matrix*, which is a data structure that R does support. In the past, there has been difficulty converting a matrix to something more visual-friendly. More recently, however, tools like the [kableExtra](https://cran.r-project.org/package=kableExtra) and [gt](https://cran.r-project.org/package=gt) packages allow us to present visually appealing output that extends the structure of a data frame. Using the matrix-style output of `migrate`'s functions with a visual formatting package such as the two mentioned above will hopefully help analysts streamline the presentation of their credit portfolio's state migration matrices to an audience.
+One of the more difficult aspects of making a state migration matrix in R (or Python, for that matter) is the fact that the output doesn't satisfy the structure of a traditional data frame object. Rather, the output needs to be a *matrix*, which is a data structure that R does support. In the past, there has been difficulty converting a matrix to something more visual-friendly. More recently, however, tools like the [kableExtra](https://cran.r-project.org/package=kableExtra) and [gt](https://cran.r-project.org/package=gt) packages allow us to present visually appealing output that extends the structure of a data frame. Using the matrix-style output of {migrate}'s functions with a visual formatting package such as the two mentioned above will hopefully help analysts streamline the presentation of their credit portfolio's state migration matrices to an audience.
 
 ## Getting Started
 
-If you haven't done so already, first install `migrate` with the instructions in the [README section](https://github.com/mthomas-ketchbrook/migrate#Installation).
+If you haven't done so already, first install {migrate} with the instructions in the [README section](https://github.com/mthomas-ketchbrook/migrate#Installation).
 
-First, load the package & the mock dataset (as a data frame) using `library()`
+First, load the package using `library()`
 
 ```{r load, eval = FALSE}
 library(migrate)
@@ -49,7 +49,7 @@ head(mock_credit[order(mock_credit$customer_id), ]) |>
   knitr::kable(row.names = FALSE)
 ```
 
-Note that an important feature of the `mock_credit` dataset is that there are exactly two (2) unique values in the `date` column variable; if the `time` argument passed to `migrate` has more than two (2) unique values, the function will throw an error.
+Note that an important feature of the `mock_credit` dataset is that there are exactly two (2) unique values in the `date` column variable; if the `time` argument passed to `migrate()` has more than two (2) unique values, the function will throw an error.
 
 ```{r dates}
 unique(mock_credit$date)
@@ -59,33 +59,33 @@ To summarize the migration within the data, use the `migrate()` function
 
 ```{r migrate}
 migrated_df <- migrate(
-  data = mock_credit, 
-  id = customer_id, 
-  time = date, 
-  state = risk_rating, 
+  data = mock_credit,
+  id = customer_id,
+  time = date,
+  state = risk_rating,
 )
 head(migrated_df)
 ```
 
-To create the state migration matrix, use the `build_matrix()` function
+To create the state transition matrix, use the `build_matrix()` function
 ```{r matrix}
 build_matrix(migrated_df)
 ```
 
 Or, to do it all in one shot, use the `|>`
-```{r pipe} 
+```{r pipe}
 mock_credit |>
   migrate(
-    id = customer_id, 
-    time = date, 
-    state = risk_rating, 
-    metric = principal_balance, 
-    percent = FALSE, 
+    id = customer_id,
+    time = date,
+    state = risk_rating,
+    metric = principal_balance,
+    percent = FALSE,
     verbose = FALSE
   ) |>
   build_matrix(
-    state_start = risk_rating_start, 
-    state_end = risk_rating_end, 
+    state_start = risk_rating_start,
+    state_end = risk_rating_end,
     metric = principal_balance
   )
 ```
@@ -99,7 +99,7 @@ The following code creates a dataframe that features 500 customers with the foll
 - 10 customers have a value only at the second timepoint
 
 ```{r}
-mock_credit_with_missing <- mock_credit |> 
+mock_credit_with_missing <- mock_credit |>
   # Remove the value at the first timepoint for 10 customers
   dplyr::slice(-(1:10)) |>
   # Remove the value at the last timepoint for 20 customers
@@ -118,10 +118,10 @@ By default, `migrate()` drops observations that belong to IDs found at a single 
 ```{r}
 migrated_data_without_fill_state <- mock_credit_with_missing |>
   migrate(
-    id = customer_id, 
-    time = date, 
-    state = risk_rating, 
-    percent = FALSE, 
+    id = customer_id,
+    time = date,
+    state = risk_rating,
+    percent = FALSE,
     verbose = FALSE
   )
 ```
@@ -129,8 +129,8 @@ migrated_data_without_fill_state <- mock_credit_with_missing |>
 Notice that only 470 customers have been migrated:
 
 ```{r}
-migrated_data_without_fill_state |> 
-  dplyr::pull(count) |> 
+migrated_data_without_fill_state |>
+  dplyr::pull(count) |>
   sum()
 ```
 
@@ -141,11 +141,11 @@ When `verbose = TRUE` a message will provide additional information about the ID
 ```{r}
 migrated_data_with_fill_state <- mock_credit_with_missing |>
   migrate(
-    id = customer_id, 
-    time = date, 
+    id = customer_id,
+    time = date,
     state = risk_rating,
     fill_state = "No Rating",
-    percent = FALSE, 
+    percent = FALSE,
     verbose = TRUE
   )
 ```
@@ -153,8 +153,8 @@ migrated_data_with_fill_state <- mock_credit_with_missing |>
 Check that 500 customers were migrated:
 
 ```{r}
-migrated_data_with_fill_state |> 
-  dplyr::pull(count) |> 
+migrated_data_with_fill_state |>
+  dplyr::pull(count) |>
   sum()
 ```
 
@@ -163,17 +163,17 @@ So far we have been using `count` as the metric to easily determine the amount o
 ```{r}
 mock_credit_with_missing |>
   migrate(
-    id = customer_id, 
-    time = date, 
-    state = risk_rating, 
-    metric = principal_balance, 
+    id = customer_id,
+    time = date,
+    state = risk_rating,
+    metric = principal_balance,
     fill_state = "No Rating",
-    percent = FALSE, 
+    percent = FALSE,
     verbose = FALSE
   ) |>
   build_matrix(
-    state_start = risk_rating_start, 
-    state_end = risk_rating_end, 
+    state_start = risk_rating_start,
+    state_end = risk_rating_end,
     metric = principal_balance
   )
 ```

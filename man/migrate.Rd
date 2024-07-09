@@ -56,7 +56,7 @@ combinations of starting & ending credit risk states and the calculated
 migration observed during the period.
 }
 \description{
-\code{migrate()} summarizes the transition amount (or percentage) of a continuous
+\code{migrate()} summarizes the transition amount (or percentage) of a numeric
 variable from each beginning credit risk state category to each ending credit
 risk state, given a data frame input.
 }

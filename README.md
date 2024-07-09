@@ -13,9 +13,8 @@ downloads](https://cranlogs.r-pkg.org/badges/migrate)](https://cran.r-project.or
 [![R-CMD-check](https://github.com/ketchbrookanalytics/migrate/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ketchbrookanalytics/migrate/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of migrate is to provide credit analysts with an easy set of
-tools for building *state migration matrices* (also known as *“state
-transition matrices”*).
+The goal of {migrate} is to provide users with an easy set of tools for
+building *state transition matrices*.
 
 <br>
 
@@ -23,7 +22,7 @@ transition matrices”*).
 
 ## Methodology
 
-`migrate` provides an easy way to calculate absolute or percentage
+{migrate} provides an easy way to calculate absolute or percentage
 migration within a credit portfolio. The above image shows a typical
 credit migration matrix using the *absolute* approach; each cell in the
 grid represents the total balance in the portfolio at 2020-06-30 that
@@ -34,15 +33,16 @@ Rating **AAA** at 2020-06-30 to a Risk Rating **AA** at 2020-09-30.
 
 While the above, *absolute*, migration example is typically more of a
 reporting function, the *percentage* (or probabilistic) methodology is
-often more of a statistical credit risk modeling exercise. Currently,
-this package only supports the simple “cohort” methodology. This
-estimates the probability of moving from state *i* to state *j* in a
-single time step, echoing a Markov process. We can visualize this in a
-matrix, for a credit portfolio with *N* unique, ordinal states:
+often more of a statistical modeling exercise, often used in credit
+portfolio risk management. Currently, this package only supports the
+simple “cohort” methodology. This estimates the probability of moving
+from state *i* to state *j* in a single time step, echoing a Markov
+process. We can visualize this in a matrix, for a credit portfolio with
+*N* unique, ordinal states:
 
 ![](man/figures/markov_matrix.png)
 
-### Future Plans for `migrate`
+### Future Plans for {migrate}
 
 Future development plans for this package include building functionality
 for the more complex **duration**/**hazard** methodology, including both
@@ -50,7 +50,7 @@ the *time-homogeneous* and *non-homogeneous* implementations.
 
 ## Installation
 
-You can install the released version of migrate from
+You can install the released version of {migrate} from
 [CRAN](https://CRAN.R-project.org) with:
 
 ``` r
@@ -61,12 +61,12 @@ And the development version from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("mthomas-ketchbrook/migrate")
+devtools::install_github("ketchbrookanalytics/migrate")
 ```
 
 ## Practical Usage
 
-`migrate()` currently only handles transitions between exactly two (2)
+{migrate} currently only handles transitions between exactly two (2)
 timepoints. Under the hood, `migrate()` finds the earliest & latest
 dates in the given *time* variable, and filters out any observations
 where the *time* value does not match those two dates.
@@ -77,7 +77,7 @@ the query would likely look something like this:
 ``` r
 # -- Get the *State* risk status and *Balance* dollar amount for each ID, at two distinct dates
 
-# SELECT ID, Date, State, Balance 
+# SELECT ID, Date, State, Balance
 # FROM my_database
 # WHERE Date IN ('2020-12-31', '2021-06-30')
 ```
@@ -93,8 +93,7 @@ for more information.
 
 ## Example
 
-First, load the package & the mock dataset (as a data frame) using
-`library()`
+First, load the package using `library()`
 
 ``` r
 library(migrate)
@@ -120,8 +119,8 @@ head(mock_credit[order(mock_credit$customer_id), ])   # sort by 'customer_id'
 
 Note that an important feature of the `mock_credit` dataset is that
 there are exactly two (2) unique values in the `date` column variable;
-if the `time` argument passed to `migrate` has more than two (2) unique
-values, the function will throw an error.
+if the `time` argument passed to `migrate()` has more than two (2)
+unique values, the function will throw an error.
 
 ``` r
 unique(mock_credit$date)
@@ -132,10 +131,10 @@ To summarize the migration within the data, use the `migrate()` function
 
 ``` r
 migrated_df <- migrate(
-  data = mock_credit, 
-  id = customer_id, 
-  time = date, 
-  state = risk_rating, 
+  data = mock_credit,
+  id = customer_id,
+  time = date,
+  state = risk_rating,
 )
 #> ℹ Migrating from 2020-06-30 to 2020-09-30
 ```
@@ -153,7 +152,7 @@ head(migrated_df)
 #> 6 AAA               B               0
 ```
 
-To create the state migration matrix, use the `build_matrix()` function
+To create the state transition matrix, use the `build_matrix()` function
 
 ``` r
 build_matrix(migrated_df)
@@ -173,18 +172,18 @@ build_matrix(migrated_df)
 Or, to do it all in one shot, use the `|>`
 
 ``` r
-mock_credit |> 
+mock_credit |>
   migrate(
-    id = customer_id, 
-    time = date, 
-    state = risk_rating, 
-    metric = principal_balance, 
-    percent = FALSE, 
+    id = customer_id,
+    time = date,
+    state = risk_rating,
+    metric = principal_balance,
+    percent = FALSE,
     verbose = FALSE
   ) |>
   build_matrix(
-    state_start = risk_rating_start, 
-    state_end = risk_rating_end, 
+    state_start = risk_rating_start,
+    state_end = risk_rating_end,
     metric = principal_balance
   )
 #>          AAA       AA        A      BBB       BB        B      CCC
