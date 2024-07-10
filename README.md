@@ -88,7 +88,7 @@ with a single timepoint are not removed but rather migrated from or to
 this *filler state*. This allows for more flexible handling of such
 data, ensuring that no information is lost during the migration process.
 Check [Handle IDs with observations at a single
-timepoint](articles/migrate.html#handle-ids-with-observations-at-a-single-timepoint)
+timepoint](https://ketchbrookanalytics.github.io/migrate/articles/migrate.html#handle-ids-with-observations-at-a-single-timepoint)
 for more information.
 
 ## Example
