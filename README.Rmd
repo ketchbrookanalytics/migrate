@@ -73,7 +73,7 @@ If you are writing a SQL query to get data to be used with `migrate()`, the quer
 # WHERE Date IN ('2020-12-31', '2021-06-30')
 ```
 
-By default, `migrate()` drops observations that belong to IDs found at a single timepoint. However, users can define a *filler state* so that IDs with a single timepoint are not removed but rather migrated from or to this *filler state*. This allows for more flexible handling of such data, ensuring that no information is lost during the migration process. Check [Handle IDs with observations at a single timepoint](articles/migrate.html#handle-ids-with-observations-at-a-single-timepoint) for more information.
+By default, `migrate()` drops observations that belong to IDs found at a single timepoint. However, users can define a *filler state* so that IDs with a single timepoint are not removed but rather migrated from or to this *filler state*. This allows for more flexible handling of such data, ensuring that no information is lost during the migration process. Check [Handle IDs with observations at a single timepoint](https://ketchbrookanalytics.github.io/migrate/articles/migrate.html#handle-ids-with-observations-at-a-single-timepoint) for more information.
 
 ## Example
 

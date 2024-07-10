@@ -21,7 +21,7 @@ Description: Tools to help convert credit risk data at two timepoints
     how risk moved in their credit portfolio over a time interval.
     References to this methodology include:
     1. Schuermann, T. (2008) <doi:10.1002/9780470061596.risk0409>.
-    2. Perederiy, V. (2017) <arXiv:1708.00062>.
+    2. Perederiy, V. (2017) <doi:10.48550/arXiv.1708.00062>.
 License: MIT + file LICENSE
 URL: https://github.com/ketchbrookanalytics/migrate, https://ketchbrookanalytics.github.io/migrate/
 BugReports: https://github.com/ketchbrookanalytics/migrate/issues

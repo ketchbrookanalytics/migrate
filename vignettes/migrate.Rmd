@@ -28,7 +28,7 @@ One of the more difficult aspects of making a state migration matrix in R (or Py
 
 ## Getting Started
 
-If you haven't done so already, first install {migrate} with the instructions in the [README section](https://github.com/mthomas-ketchbrook/migrate#Installation).
+If you haven't done so already, first install {migrate} with the instructions in the [README section](https://github.com/ketchbrookanalytics/migrate#Installation).
 
 First, load the package using `library()`
 
