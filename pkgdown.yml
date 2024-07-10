@@ -3,7 +3,7 @@ pkgdown: 2.1.0
 pkgdown_sha: ~
 articles:
   migrate: migrate.html
-last_built: 2024-07-10T10:52Z
+last_built: 2024-07-10T19:51Z
 urls:
   reference: https://ketchbrookanalytics.github.io/migrate/reference
   article: https://ketchbrookanalytics.github.io/migrate/articles
