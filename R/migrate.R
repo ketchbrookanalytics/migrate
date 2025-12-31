@@ -416,14 +416,16 @@ migrate <- function(data, id, time, state,
   }
 
   # Replace the time values in the column names with "start" and "end"
+  # Anchoring each pattern to the end of the column names to
+  # accommodate overlapping patterns (e.g., M1 and M12)
   colnames(data) <- gsub(
-    pattern = as.character(times[1]),
+    pattern = paste0(as.character(times[1]), "$"),
     replacement = "start",
     x = colnames(data)
   )
 
   colnames(data) <- gsub(
-    pattern = as.character(times[2]),
+    pattern = paste0(as.character(times[2]), "$"),
     replacement = "end",
     x = colnames(data)
   )
