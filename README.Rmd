@@ -61,7 +61,11 @@ devtools::install_github("ketchbrookanalytics/migrate")
 
 ## Practical Usage
 
-{migrate} currently only handles transitions between exactly two (2) timepoints. Under the hood, `migrate()` finds the earliest & latest dates in the given *time* variable, and filters out any observations where the *time* value does not match those two dates.
+{migrate} currently only handles transitions between exactly two (2) timepoints. Under the hood, `migrate()` finds the earliest & latest timepoints in the given *time* variable, and filters out any observations where the *time* value does not match those two periods.
+
+`migrate()` finds the earliest and latest timepoints in the given *time* variable by isolating the unique values and sorting. As a result, `migrate` can accommodate a variety of data types, although `date` data types are likely the most convenient to work with.
+
+While most data types will sort appropriately, if the *time* variable is type `character`, it is recommended to use convert to type `factor` (ordered) instead to ensure the *time* values are properly sequenced. `migrate()` will throw a warning if the *time* variable is type `character`.
 
 If you are writing a SQL query to get data to be used with `migrate()`, the query would likely look something like this:
 
