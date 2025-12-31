@@ -103,6 +103,7 @@ coerce_factor <- function(data, state_name) {
 
 
 # Stop execution if there aren't exactly 2 unique time values in the data
+# Warn that character time values may sort incorrectly (e.g., pre_, post_)
 check_times <- function(times, time_name) {
 
   if (length(times) != 2) {
@@ -116,6 +117,12 @@ check_times <- function(times, time_name) {
     ) |>
       cli::cli_abort()
 
+  }
+
+  if (is.character(times)) {
+    cli::cli_warn(
+        c("!" = glue::glue("Please consider converting `{ time }` to an ordered factor before passing it to `migrate()` to ensure that the timepoint ordering in the final matrix displays correctly"))
+      )
   }
 
 }
