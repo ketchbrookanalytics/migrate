@@ -120,9 +120,11 @@ check_times <- function(times, time_name) {
   }
 
   if (is.character(times)) {
+
     cli::cli_warn(
-        c("!" = glue::glue("Please consider converting `{ time }` to an ordered factor before passing it to `migrate()` to ensure that the timepoint ordering in the final matrix displays correctly"))
+        c("!" = glue::glue("Please consider converting `{ time_name }` to an ordered factor before passing it to `migrate()` to ensure that the timepoint ordering in the final matrix displays correctly"))
       )
+
   }
 
 }
