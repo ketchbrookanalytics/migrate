@@ -426,7 +426,7 @@ testthat::test_that("migrate() throws a warning if `time` variable is 'character
 
   # suggest converting character to ordered factor
   testthat::expect_warning(
-      migrate(mock_credit_time_overlap,
+      migrate(mock_credit_time_character,
         time = date,
         state = risk_rating,
         id = customer_id,
