@@ -61,16 +61,19 @@ devtools::install_github("ketchbrookanalytics/migrate")
 
 ## Practical Usage
 
-{migrate} currently only handles transitions between exactly two (2) timepoints. Under the hood, `migrate()` finds the earliest & latest dates in the given *time* variable, and filters out any observations where the *time* value does not match those two dates.
+{migrate} currently only handles transitions between exactly two (2) timepoints. Under the hood, `migrate()` finds the earliest & latest timepoints in the given *time* variable, and filters out any observations where the *time* value does not match those two periods.
+
+`migrate()` identifies the desired timepoints in the *time* variable by isolating the unique values and sorting. As a result, `migrate()` can accommodate a variety of data types. However, `date` or `datetime` data types are likely the most convenient to work with.
+
+While most data types will sort appropriately, if the *time* variable is type `character`, it is recommended to convert to type `factor` (ordered) before passing to `migrate()` to ensure the *time* values are properly sequenced. `migrate()` will throw a warning if the *time* variable is type `character`.
 
 If you are writing a SQL query to get data to be used with `migrate()`, the query would likely look something like this:
 
-```{r, eval = FALSE}
-# -- Get the *State* risk status and *Balance* dollar amount for each ID, at two distinct dates
-
-# SELECT ID, Date, State, Balance
-# FROM my_database
-# WHERE Date IN ('2020-12-31', '2021-06-30')
+```sql
+-- Get the *State* risk status and *Balance* dollar amount for each ID, at two distinct dates
+SELECT ID, Date, State, Balance
+FROM my_database
+WHERE Date IN ('2020-12-31', '2021-06-30')
 ```
 
 By default, `migrate()` drops observations that belong to IDs found at a single timepoint. However, users can define a *filler state* so that IDs with a single timepoint are not removed but rather migrated from or to this *filler state*. This allows for more flexible handling of such data, ensuring that no information is lost during the migration process. Check [Handle IDs with observations at a single timepoint](https://ketchbrookanalytics.github.io/migrate/articles/migrate.html#handle-ids-with-observations-at-a-single-timepoint) for more information.
