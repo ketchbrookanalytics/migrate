@@ -395,9 +395,9 @@ test_that("migrate() coerces 'character'-type `state` columns to type 'factor'",
 # Mutate `date` to 'character'-type
 mock_credit_time_character <- mock_credit |>
   dplyr::mutate(
-    date = dplyr::case_when(
-      date == as.Date("2020-06-30") ~ "quarter_3",
-      date == as.Date("2020-09-30") ~ "quarter_4"
+    time_overlap_chars = dplyr::case_when(
+      date == as.Date("2020-06-30") ~ "M1",
+      date == as.Date("2020-09-30") ~ "M100"
     )
   )
 
@@ -407,7 +407,7 @@ testthat::test_that("migrate() names 'character'-type `time` columns correctly",
   df_time_character <- suppressWarnings({
     migrate(
       data = mock_credit_time_character,
-      time = date,
+      time = time_overlap_chars,
       state = risk_rating,
       id = customer_id,
       verbose = FALSE
@@ -428,12 +428,12 @@ testthat::test_that("migrate() throws a warning if `time` variable is 'character
   testthat::expect_warning(
     migrate(
       data = mock_credit_time_character,
-      time = date,
+      time = time_overlap_chars,
       state = risk_rating,
       id = customer_id,
       verbose = FALSE
     ),
-    regexp = "Please consider converting `date` to an ordered factor"
+    regexp = "Please consider converting `time_overlap_chars` to an ordered factor"
   )
 
 })
