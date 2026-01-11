@@ -73,24 +73,23 @@ observations where the *time* value does not match those two periods.
 
 `migrate()` identifies the desired timepoints in the *time* variable by
 isolating the unique values and sorting. As a result, `migrate()` can
-accommodate a variety of data types. However, `date` data types are
-likely the most convenient to work with.
+accommodate a variety of data types. However, `date` or `datetime` data
+types are likely the most convenient to work with.
 
 While most data types will sort appropriately, if the *time* variable is
-type `character`, it is recommended to use convert to type `factor`
-(ordered) instead to ensure the *time* values are properly sequenced.
-`migrate()` will throw a warning if the *time* variable is type
-`character`.
+type `character`, it is recommended to convert to type `factor`
+(ordered) before passing to `migrate()` to ensure the *time* values are
+properly sequenced. `migrate()` will throw a warning if the *time*
+variable is type `character`.
 
 If you are writing a SQL query to get data to be used with `migrate()`,
 the query would likely look something like this:
 
-``` r
-# -- Get the *State* risk status and *Balance* dollar amount for each ID, at two distinct dates
-
-# SELECT ID, Date, State, Balance
-# FROM my_database
-# WHERE Date IN ('2020-12-31', '2021-06-30')
+``` sql
+-- Get the *State* risk status and *Balance* dollar amount for each ID, at two distinct dates
+SELECT ID, Date, State, Balance
+FROM my_database
+WHERE Date IN ('2020-12-31', '2021-06-30')
 ```
 
 By default, `migrate()` drops observations that belong to IDs found at a
@@ -148,18 +147,15 @@ migrated_df <- migrate(
   state = risk_rating,
 )
 #> ℹ Migrating from 2020-06-30 to 2020-09-30
-```
-
-``` r
 head(migrated_df)
 #> # A tibble: 6 × 3
 #>   risk_rating_start risk_rating_end   prop
 #>   <ord>             <ord>            <dbl>
-#> 1 AAA               AAA             0.774
-#> 2 AAA               AA              0.194
+#> 1 AAA               AAA             0.774 
+#> 2 AAA               AA              0.194 
 #> 3 AAA               A               0.0323
-#> 4 AAA               BBB             0
-#> 5 AAA               BB              0
+#> 4 AAA               BBB             0     
+#> 5 AAA               BB              0     
 #> 6 AAA               B               0
 ```
 
