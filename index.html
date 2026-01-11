@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="index.html">migrate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -89,14 +89,14 @@
 <div class="section level2">
 <h2 id="practical-usage">Practical Usage<a class="anchor" aria-label="anchor" href="#practical-usage"></a>
 </h2>
-<p>{migrate} currently only handles transitions between exactly two (2) timepoints. Under the hood, <code><a href="reference/migrate.html">migrate()</a></code> finds the earliest &amp; latest dates in the given <em>time</em> variable, and filters out any observations where the <em>time</em> value does not match those two dates.</p>
+<p>{migrate} currently only handles transitions between exactly two (2) timepoints. Under the hood, <code><a href="reference/migrate.html">migrate()</a></code> finds the earliest &amp; latest timepoints in the given <em>time</em> variable, and filters out any observations where the <em>time</em> value does not match those two periods.</p>
+<p><code><a href="reference/migrate.html">migrate()</a></code> identifies the desired timepoints in the <em>time</em> variable by isolating the unique values and sorting. As a result, <code><a href="reference/migrate.html">migrate()</a></code> can accommodate a variety of data types. However, <code>date</code> or <code>datetime</code> data types are likely the most convenient to work with.</p>
+<p>While most data types will sort appropriately, if the <em>time</em> variable is type <code>character</code>, it is recommended to convert to type <code>factor</code> (ordered) before passing to <code><a href="reference/migrate.html">migrate()</a></code> to ensure the <em>time</em> values are properly sequenced. <code><a href="reference/migrate.html">migrate()</a></code> will throw a warning if the <em>time</em> variable is type <code>character</code>.</p>
 <p>If you are writing a SQL query to get data to be used with <code><a href="reference/migrate.html">migrate()</a></code>, the query would likely look something like this:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># -- Get the *State* risk status and *Balance* dollar amount for each ID, at two distinct dates</span></span>
-<span></span>
-<span><span class="co"># SELECT ID, Date, State, Balance</span></span>
-<span><span class="co"># FROM my_database</span></span>
-<span><span class="co"># WHERE Date IN ('2020-12-31', '2021-06-30')</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co">-- Get the *State* risk status and *Balance* dollar amount for each ID, at two distinct dates</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="kw">SELECT</span> <span class="kw">ID</span>, <span class="dt">Date</span>, State, Balance</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="kw">FROM</span> my_database</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="kw">WHERE</span> <span class="dt">Date</span> <span class="kw">IN</span> (<span class="st">'2020-12-31'</span>, <span class="st">'2021-06-30'</span>)</span></code></pre></div>
 <p>By default, <code><a href="reference/migrate.html">migrate()</a></code> drops observations that belong to IDs found at a single timepoint. However, users can define a <em>filler state</em> so that IDs with a single timepoint are not removed but rather migrated from or to this <em>filler state</em>. This allows for more flexible handling of such data, ensuring that no information is lost during the migration process. Check <a href="https://ketchbrookanalytics.github.io/migrate/articles/migrate.html#handle-ids-with-observations-at-a-single-timepoint">Handle IDs with observations at a single timepoint</a> for more information.</p>
 </div>
 <div class="section level2">
@@ -168,9 +168,8 @@
 <span>  time <span class="op">=</span> <span class="va">date</span>,</span>
 <span>  state <span class="op">=</span> <span class="va">risk_rating</span>,</span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; ℹ Migrating from 2020-06-30 to 2020-09-30</span></span></code></pre></div>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">migrated_df</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ℹ Migrating from 2020-06-30 to 2020-09-30</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">migrated_df</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 6 × 3</span></span>
 <span><span class="co">#&gt;   risk_rating_start risk_rating_end   prop</span></span>
 <span><span class="co">#&gt;   &lt;ord&gt;             &lt;ord&gt;            &lt;dbl&gt;</span></span>
@@ -181,7 +180,7 @@
 <span><span class="co">#&gt; 5 AAA               BB              0     </span></span>
 <span><span class="co">#&gt; 6 AAA               B               0</span></span></code></pre></div>
 <p>To create the state transition matrix, use the <code><a href="reference/build_matrix.html">build_matrix()</a></code> function</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/build_matrix.html">build_matrix</a></span><span class="op">(</span><span class="va">migrated_df</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Using `risk_rating_start` as the 'state_start' column variable</span></span>
 <span><span class="co">#&gt; ℹ Using `risk_rating_end` as the 'state_end' column variable</span></span>
@@ -195,7 +194,7 @@
 <span><span class="co">#&gt; B   0.000000000 0.00000000 0.00000000 0.01388889 0.09722222 0.62500000 0.26388889</span></span>
 <span><span class="co">#&gt; CCC 0.000000000 0.00000000 0.00000000 0.00000000 0.00000000 0.14285714 0.85714286</span></span></code></pre></div>
 <p>Or, to do it all in one shot, use the <code>|&gt;</code></p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mock_credit</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/migrate.html">migrate</a></span><span class="op">(</span></span>
 <span>    id <span class="op">=</span> <span class="va">customer_id</span>,</span>

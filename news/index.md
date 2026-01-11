@@ -1,5 +1,17 @@
 # Changelog
 
+## migrate 0.5.1
+
+### Bug Fix
+
+- Remediates issue where
+  [`migrate()`](https://ketchbrookanalytics.github.io/migrate/reference/migrate.md)
+  would fail if values of `time` argument had overlapping characters
+  (i.e., “T1” and “T100”)
+  - [`migrate()`](https://ketchbrookanalytics.github.io/migrate/reference/migrate.md)
+    now throws a warning if the argument passed to `time` is a
+    character-type column
+
 ## migrate 0.5.0
 
 CRAN release: 2024-07-10
