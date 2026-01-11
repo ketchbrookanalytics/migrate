@@ -14,6 +14,9 @@ jobs:
   R-CMD-check:
     runs-on: ${{ matrix.config.os }}
 
+    # Allow skipping this CI via commit message
+    if: "!contains(github.event.head_commit.message, '[skip r-check]')"
+
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
 
     strategy:
