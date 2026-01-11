@@ -72,8 +72,15 @@ coerce_factor <- function(data, state_name) {
     # to convert it to an ordered factor
     if (!is.ordered(state_vec)) {
 
+      msg <- glue::glue(
+        "Please consider converting `{ state_name }` to an ordered factor",
+        "before passing it to `migrate()` to ensure that the rank-ordering in",
+        "the final matrix displays correctly",
+        .sep = " "
+      )
+
       cli::cli_warn(
-        c("!" = glue::glue("Please consider converting `{ state_name }` to an ordered factor before passing it to `migrate()` to ensure that the rank-ordering in the final matrix displays correctly"))
+        c("!" = msg)
       )
 
     }
@@ -87,7 +94,12 @@ coerce_factor <- function(data, state_name) {
     cli::cli_warn(
       c(
         "!" = glue::glue("Converting `{ state_name }` to type `factor`"),
-        "!" = glue::glue("To ensure that your output is ordered correctly, convert the `{ state_name }` column variable in your data frame to an ordered factor before passing to `migrate()`")
+        "i" = glue::glue(
+          "To ensure that your output is ordered correctly, convert the",
+          "`{ state_name }` column variable in your data frame to an ordered",
+          "factor before passing to `migrate()`",
+          .sep = " "
+        )
       )
     )
 
@@ -103,6 +115,7 @@ coerce_factor <- function(data, state_name) {
 
 
 # Stop execution if there aren't exactly 2 unique time values in the data
+# Warn that character time values may sort incorrectly (e.g., pre_, post_)
 check_times <- function(times, time_name) {
 
   if (length(times) != 2) {
@@ -115,6 +128,19 @@ check_times <- function(times, time_name) {
       " unique values were found"
     ) |>
       cli::cli_abort()
+
+  }
+
+  if (is.character(times)) {
+
+    cli::cli_warn(
+      c("!" = glue::glue(
+        "Please consider converting `{ time_name }` to an ordered factor",
+        "before passing it to `migrate()` to ensure that transition is",
+        "appropriately chronological",
+        .sep = " "
+      ))
+    )
 
   }
 
@@ -144,7 +170,11 @@ drop_missing_timepoints <- function(data) {
     tidyr::drop_na()
 
   cli::cli_warn(
-    c("!" = glue::glue("Removed { (nrow(data) - nrow(out)) } observations due to missingness or IDs only existing at one `time` value"))
+    c("!" = glue::glue(
+      "Removed { (nrow(data) - nrow(out)) } observations due to missingness or",
+      "IDs only existing at one `time` value",
+      .sep = " "
+    ))
   )
 
   return(out)
@@ -186,7 +216,7 @@ migrate_percent <- function(data, state_start_name, metric_name) {
       "{metric_name}" := .data[[metric_name]] / sum(.data[[metric_name]])
     ) |>
     dplyr::ungroup() |>
-    # Replace `NaN` values with `Inf` so that they are not dropped with `drop_na()`
+    # Replace `NaN` values with `Inf` so that they're not dropped by `drop_na()`
     dplyr::mutate(
       "{metric_name}" := ifelse(
         is.nan(.data[[metric_name]]),
@@ -313,7 +343,9 @@ migrate <- function(data, id, time, state,
     # Stop if the `metric` variable isn't numeric
     if (!is.numeric(data[[metric_name]])) {
 
-      cli::cli_abort("`metric` argument must be a numeric type variable in `data`")
+      cli::cli_abort(
+        "`metric` argument must be a numeric type variable in `data`"
+      )
 
     }
 
@@ -360,10 +392,24 @@ migrate <- function(data, id, time, state,
 
       # Inform the user
       cli::cli_div(theme = list(ul = list(`margin-left` = 2, before = "")))
-      cli::cli_alert_info(glue::glue("{ n_missing } IDs have a missing timepoint:"))
+      cli::cli_alert_info(
+        glue::glue("{ n_missing } IDs have a missing timepoint:")
+      )
       cli::cli_ul(id = "ul_id")
-        cli::cli_li(glue::glue("Migrating { n_missing_end } IDs with missing end timepoint to { fill_state_class_type } class '{ fill_state }'"))
-        cli::cli_li(glue::glue("Migrating { n_missing_start } IDs with missing start timepoint from { fill_state_class_type } class '{ fill_state }'"))
+      cli::cli_li(
+        glue::glue(
+          "Migrating { n_missing_end } IDs with missing end timepoint to",
+          "{ fill_state_class_type } class '{ fill_state }'",
+          .sep = " "
+        )
+      )
+      cli::cli_li(
+        glue::glue(
+          "Migrating { n_missing_start } IDs with missing start timepoint from",
+          "{ fill_state_class_type } class '{ fill_state }'",
+          .sep = " "
+        )
+      )
       cli::cli_end(id = "ul_id")
 
     }
@@ -416,14 +462,16 @@ migrate <- function(data, id, time, state,
   }
 
   # Replace the time values in the column names with "start" and "end"
+  # Anchoring each pattern to the end of the column names to
+  # accommodate overlapping patterns (e.g., M1 and M12)
   colnames(data) <- gsub(
-    pattern = as.character(times[1]),
+    pattern = paste0(as.character(times[1]), "$"),
     replacement = "start",
     x = colnames(data)
   )
 
   colnames(data) <- gsub(
-    pattern = as.character(times[2]),
+    pattern = paste0(as.character(times[2]), "$"),
     replacement = "end",
     x = colnames(data)
   )

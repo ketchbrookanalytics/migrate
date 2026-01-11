@@ -1,22 +1,18 @@
 {
-    "image": "rocker/r2u",
+    "name": "migrate R package",
+    "image": "rocker/r-ver:4",
 
     // Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
 
-        // Install system library for `devtools::document()`
-        // More info: https://github.com/rocker-org/devcontainer-features/blob/main/src/quarto-cli/README.md#install-chromium
-		"ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
+        "ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
             "packages": "libxml2-dev, qpdf"
         },
 
-        // Install pandoc (for building vignettes)
-        "ghcr.io/rocker-org/devcontainer-features/pandoc:1": {},
-
 		// Install additional R package dependencies
 		"ghcr.io/rocker-org/devcontainer-features/r-packages:1": {
-			"packages": "testthat, knitr, rmarkdown, dplyr, tidyr, tibble, rlang, utils, magrittr, devtools, usethis, testthat",
-			"additionalRepositories": "CRAN = 'https://packagemanager.posit.co/cran/__linux__/jammy/latest'"
+			"packages": "devtools, dplyr, github::nx10/httpgd, knitr, languageserver, magrittr, rlang, rmarkdown, testthat, tibble, tidyr, usethis",
+			"installSystemRequirements": true
 		}
 
 	},
@@ -25,13 +21,13 @@
         // Settings for VS Code.
         "vscode": {
             "extensions": [
-                "reditorsupport.r"
+                "reditorsupport.r",
+                "RDebugger.r-debugger"
             ],
             "settings": {
+                "editor.rulers": [80],
                 "r.bracketedPaste": true,
-                "r.plot.useHttpgd": true,
-                "r.lsp.diagnostics": false,
-                "r.lsp.promptToInstall": false
+                "r.plot.useHttpgd": true
             }
         }
     }

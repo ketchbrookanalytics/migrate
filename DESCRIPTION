@@ -14,7 +14,11 @@ Authors@R:
       person(given = "Ivan",
              family = "Millanes",
              role = "ctb",
-             email = "imillanes@ketchbrookanalytics.com"))
+             email = "imillanes@ketchbrookanalytics.com"),
+      person(given = "Dylan",
+             family = "Hughes",
+             role = "ctb",
+             email = "dhughes@ketchbrookanalytics.com"))
 Description: Tools to help convert credit risk data at two timepoints
     into traditional credit state migration (aka, "transition") matrices.
     At a higher level, 'migrate' is intended to help an analyst understand
@@ -44,5 +48,5 @@ Imports:
 VignetteBuilder:
     knitr
 Language: en-US
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.3
 Roxygen: list(markdown = TRUE)

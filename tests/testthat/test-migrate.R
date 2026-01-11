@@ -315,6 +315,7 @@ test_that("migrate() throws an error if `metric` argument is not numeric column"
 
 })
 
+
 test_that("migrate() correctly names third column based upon `metric` argument", {
 
   # when `percent = TRUE` (default)
@@ -360,6 +361,7 @@ test_that("migrate() correctly names third column based upon `metric` argument",
 
 })
 
+
 test_that("migrate() coerces 'character'-type `state` columns to type 'factor'", {
 
   suppressWarnings({
@@ -389,13 +391,61 @@ test_that("migrate() coerces 'character'-type `state` columns to type 'factor'",
 
 })
 
+
+# Mutate `date` to 'character'-type
+mock_credit_time_character <- mock_credit |>
+  dplyr::mutate(
+    time_overlap_chars = dplyr::case_when(
+      date == as.Date("2020-06-30") ~ "M1",
+      date == as.Date("2020-09-30") ~ "M100"
+    )
+  )
+
+
+testthat::test_that("migrate() names 'character'-type `time` columns correctly", {
+
+  df_time_character <- suppressWarnings({
+    migrate(
+      data = mock_credit_time_character,
+      time = time_overlap_chars,
+      state = risk_rating,
+      id = customer_id,
+      verbose = FALSE
+    )
+  })
+
+  testthat::expect_identical(
+    raw_ct,
+    df_time_character
+  )
+
+})
+
+
+testthat::test_that("migrate() throws a warning if `time` variable is 'character`-type", {
+
+  # suggest converting character to ordered factor
+  testthat::expect_warning(
+    migrate(
+      data = mock_credit_time_character,
+      time = time_overlap_chars,
+      state = risk_rating,
+      id = customer_id,
+      verbose = FALSE
+    ),
+    regexp = "Please consider converting `time_overlap_chars` to an ordered factor"
+  )
+
+})
+
+
 ## Tests for `fill_state` argument  ---------------------------------------
 
 # Create mock data with `customer_id` values that only exist at one timepoint.
 # In particular, `mock_credit_with_missing` has:
 # - 20 customers that have a value only in the first timepoint
 # - 10 customers that have a value only in the second timepoint
-mock_credit_with_missing <- mock_credit |> 
+mock_credit_with_missing <- mock_credit |>
   # Remove the first 10 rows
   dplyr::slice(-(1:10)) |>
   # Remove the last 20 rows
@@ -410,8 +460,8 @@ test_that("migrate() doesn't remove customers with missing timepoints when `fill
     id = customer_id,
     percent = FALSE,
     verbose = FALSE
-  ) |> 
-    dplyr::pull(count) |> 
+  ) |>
+    dplyr::pull(count) |>
     sum()
 
   migrate_counts_with_missing <- migrate(
@@ -422,8 +472,8 @@ test_that("migrate() doesn't remove customers with missing timepoints when `fill
     percent = FALSE,
     fill_state = "NR",
     verbose = FALSE
-  ) |> 
-    dplyr::pull(count) |> 
+  ) |>
+    dplyr::pull(count) |>
     sum()
 
   expect_equal(migrate_counts_without_missing, migrate_counts_with_missing)
@@ -440,10 +490,10 @@ test_that("migrate() removes customers with missing timepoints when `fill_state`
       id = customer_id,
       percent = FALSE,
       verbose = FALSE
-    ) |> 
-      dplyr::pull(count) |> 
+    ) |>
+      dplyr::pull(count) |>
       sum()
-  }) 
+  })
 
   migrate_counts_with_fill_state <- migrate(
     data = mock_credit_with_missing,
@@ -453,8 +503,8 @@ test_that("migrate() removes customers with missing timepoints when `fill_state`
     percent = FALSE,
     fill_state = "NR",
     verbose = FALSE
-  ) |> 
-    dplyr::pull(count) |> 
+  ) |>
+    dplyr::pull(count) |>
     sum()
 
   expect_true(migrate_counts_without_fill_state < migrate_counts_with_fill_state)
@@ -503,14 +553,14 @@ test_that("migrate() assigns filler state correctly when `fill_state` is not NUL
     verbose = FALSE
   )
 
-  n_missing_start <- migrated_data |> 
-    dplyr::count(risk_rating_start, wt = count) |> 
-    dplyr::filter(risk_rating_start == "NR") |> 
+  n_missing_start <- migrated_data |>
+    dplyr::count(risk_rating_start, wt = count) |>
+    dplyr::filter(risk_rating_start == "NR") |>
     dplyr::pull(n)
 
-  n_missing_end <- migrated_data |> 
-    dplyr::count(risk_rating_end, wt = count) |> 
-    dplyr::filter(risk_rating_end == "NR") |> 
+  n_missing_end <- migrated_data |>
+    dplyr::count(risk_rating_end, wt = count) |>
+    dplyr::filter(risk_rating_end == "NR") |>
     dplyr::pull(n)
 
   # Recall that `mock_credit_with_missing` removed the first 10 and the last 20 rows
