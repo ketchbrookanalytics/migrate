@@ -1,7 +1,7 @@
 Package: migrate
 Type: Package
 Title: Create Credit State Migration (Transition) Matrices
-Version: 0.5.0
+Version: 0.5.1
 Authors@R:
     c(person(given = "Michael",
              family = "Thomas",

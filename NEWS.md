@@ -1,3 +1,10 @@
+# migrate 0.5.1
+
+## Bug Fix
+
+* Remediates issue where `migrate()` would fail if values of `time` argument had overlapping characters (i.e., "T1" and "T100")
+  + `migrate()` now throws a warning if the argument passed to `time` is a character-type column
+
 # migrate 0.5.0
 
 ## Enhancements
