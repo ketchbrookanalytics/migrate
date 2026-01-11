@@ -426,12 +426,13 @@ testthat::test_that("migrate() throws a warning if `time` variable is 'character
 
   # suggest converting character to ordered factor
   testthat::expect_warning(
-      migrate(mock_credit_time_character,
-        time = date,
-        state = risk_rating,
-        id = customer_id,
-        verbose = FALSE
-      ),
+    migrate(
+      data = mock_credit_time_character,
+      time = date,
+      state = risk_rating,
+      id = customer_id,
+      verbose = FALSE
+    ),
     regexp = "Please consider converting `date` to an ordered factor"
   )
 
